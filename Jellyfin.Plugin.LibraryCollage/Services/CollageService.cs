@@ -162,8 +162,16 @@ public class CollageService
         var target = Path.Combine(folder.Path, ImageFileName);
         await File.WriteAllBytesAsync(target, jpeg, cancellationToken).ConfigureAwait(false);
 
-        folder.SetImagePath(ImageType.Primary, 0, _fileSystem.GetFileInfo(target));
+        var fileInfo = _fileSystem.GetFileInfo(target);
+        folder.SetImagePath(ImageType.Primary, 0, fileInfo);
         await folder.UpdateToRepositoryAsync(ItemUpdateType.ImageUpdate, cancellationToken).ConfigureAwait(false);
+
+        // The dashboard's library list reads the user root folder's children, which can be separate
+        // in-memory instances of the same library. Update those too so no restart is needed.
+        foreach (var copy in _libraryManager.GetUserRootFolder().Children.Where(c => c.Id == folder.Id && !ReferenceEquals(c, folder)))
+        {
+            copy.SetImagePath(ImageType.Primary, 0, fileInfo);
+        }
         _store.Remember(folder.Id, target);
 
         // Clean up the replaced image if it was one Jellyfin generated or stored in its metadata folder.
