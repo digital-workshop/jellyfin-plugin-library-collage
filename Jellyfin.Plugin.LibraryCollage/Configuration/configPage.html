@@ -16,7 +16,9 @@
             #LibraryCollageConfigPage .lc-custom { background: rgba(230,160,40,.25); }
             #LibraryCollageConfigPage .lc-preview { max-width: 100%; border-radius: .5em; margin-top: 1em; display: none; }
             #LibraryCollageConfigPage .lc-range { width: 100%; max-width: 30em; }
-            #LibraryCollageConfigPage .lc-row-actions { text-align: right; }
+            #LibraryCollageConfigPage .lc-row-actions { text-align: right; white-space: nowrap; }
+            #LibraryCollageConfigPage .lc-row-actions .lc-preview-btn + .lc-preview-btn { margin-left: .4em; }
+            #LibraryCollageConfigPage .lc-preview-btn:disabled { opacity: .5; cursor: progress; }
             #LibraryCollageConfigPage .lc-preview-btn {
                 display: inline-flex; align-items: center; gap: .35em;
                 padding: .3em .9em; margin: 0; border-radius: 1em;
@@ -41,6 +43,7 @@
                         </thead>
                         <tbody id="lcLibraries"><tr><td colspan="5">Loading…</td></tr></tbody>
                     </table>
+                    <p id="lcStatus" class="fieldDescription" aria-live="polite"></p>
                     <img id="lcPreview" class="lc-preview" alt="Preview">
 
                     <h2 class="sectionTitle">Collage</h2>
@@ -136,7 +139,8 @@
                             + '<td>' + escapeHtml(lib.Name) + '</td>'
                             + '<td><span class="lc-badge ' + state[1] + '">' + state[0] + '</span></td>'
                             + '<td><input type="checkbox" data-index="' + i + '" data-field="ForceOverwrite"' + (lib.ForceOverwrite ? ' checked' : '') + '></td>'
-                            + '<td class="lc-row-actions"><button type="button" class="lc-preview-btn" data-preview="' + i + '"><span class="material-icons" aria-hidden="true">visibility</span>Preview</button></td>'
+                            + '<td class="lc-row-actions"><button type="button" class="lc-preview-btn" data-preview="' + i + '"><span class="material-icons" aria-hidden="true">visibility</span>Preview</button>'
+                            + '<button type="button" class="lc-preview-btn" data-generate="' + i + '"><span class="material-icons" aria-hidden="true">auto_awesome</span>Generate</button></td>'
                             + '</tr>';
                     }).join('');
                 }
@@ -213,6 +217,37 @@
                     });
                 }
 
+                var generateMessages = {
+                    Generated: null,
+                    SkippedOwnImage: 'Skipped: this library has its own image. Tick "Overwrite anyway" to replace it.',
+                    TooFewItems: 'Skipped: the library has fewer titles with a poster than the configured minimum.',
+                    NotFound: 'Library not found.'
+                };
+
+                function generateOne(index, button) {
+                    var lib = libraries[index];
+                    button.disabled = true;
+                    save().then(function () {
+                        return ApiClient.ajax({
+                            type: 'POST',
+                            url: ApiClient.getUrl('LibraryCollage/Generate/' + lib.Id),
+                            dataType: 'json'
+                        });
+                    }).then(function (response) {
+                        var message = generateMessages[response.Result];
+                        page.querySelector('#lcStatus').textContent = message
+                            ? lib.Name + ': ' + message
+                            : lib.Name + ': collage created. Reload the home screen to see it.';
+                        return ApiClient.getJSON(ApiClient.getUrl('LibraryCollage/Libraries'));
+                    }).then(function (result) {
+                        libraries = result;
+                        renderLibraries();
+                    }).catch(function () {
+                        button.disabled = false;
+                        Dashboard.alert('Could not create the collage. See the server log for details.');
+                    });
+                }
+
                 page.addEventListener('pageshow', load);
 
                 page.querySelector('#lcDimPercent').addEventListener('input', function (e) {
@@ -223,6 +258,12 @@
                     var button = e.target.closest('[data-preview]');
                     if (button) {
                         showPreview(parseInt(button.getAttribute('data-preview'), 10));
+                        return;
+                    }
+
+                    button = e.target.closest('[data-generate]');
+                    if (button) {
+                        generateOne(parseInt(button.getAttribute('data-generate'), 10), button);
                     }
                 });
 

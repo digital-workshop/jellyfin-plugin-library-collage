@@ -56,6 +56,7 @@ All settings are on the plugin's settings page.
 | **Libraries** | Movie libraries on | Choose which libraries get a collage. |
 | **Overwrite anyway** | Off | Per library. Replaces an image that the plugin did not create. |
 | **Preview** | – | Per library. Renders the collage with the current settings without changing anything. |
+| **Generate** | – | Per library. Creates the collage for this library right away. |
 | **Layout** | Tilted posters | *Tilted posters* or *Straight grid*. |
 | **Poster selection** | Random from top rated | *Random from top rated*, *Random*, *Recently added*, or *Top rated*. |
 | **Top rated: best X %** | 50 | The share of the library that *Random from top rated* picks from. |

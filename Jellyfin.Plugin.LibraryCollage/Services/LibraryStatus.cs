@@ -20,6 +20,25 @@ public enum ImageState
 }
 
 /// <summary>
+/// Outcome of generating one library's collage.
+/// </summary>
+[JsonConverter(typeof(JsonStringEnumConverter<GenerateResult>))]
+public enum GenerateResult
+{
+    /// <summary>The image was written.</summary>
+    Generated,
+
+    /// <summary>The library has an image not made by the plugin and overwriting is off.</summary>
+    SkippedOwnImage,
+
+    /// <summary>Fewer items with a poster than the configured minimum.</summary>
+    TooFewItems,
+
+    /// <summary>No such library.</summary>
+    NotFound
+}
+
+/// <summary>
 /// A library as shown on the settings page.
 /// </summary>
 public class LibraryStatus

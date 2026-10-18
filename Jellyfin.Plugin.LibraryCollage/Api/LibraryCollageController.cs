@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Jellyfin.Plugin.LibraryCollage.Services;
 using Jellyfin.Plugin.LibraryCollage.Tasks;
 using MediaBrowser.Common.Api;
@@ -52,6 +54,20 @@ public class LibraryCollageController : ControllerBase
     {
         var jpeg = _collageService.RenderPreview(libraryId);
         return jpeg is null ? NotFound() : File(jpeg, "image/jpeg");
+    }
+
+    /// <summary>
+    /// Generates the collage for one library now.
+    /// </summary>
+    /// <param name="libraryId">The library id.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>What happened.</returns>
+    [HttpPost("Generate/{libraryId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GenerateOne([FromRoute] Guid libraryId, CancellationToken cancellationToken)
+    {
+        var result = await _collageService.GenerateOneAsync(libraryId, cancellationToken).ConfigureAwait(false);
+        return Ok(new { Result = result });
     }
 
     /// <summary>

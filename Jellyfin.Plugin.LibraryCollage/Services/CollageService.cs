@@ -115,14 +115,28 @@ public class CollageService
         return posters.Count == 0 ? null : CollageRenderer.Render(posters, folder.Name, options);
     }
 
-    private async Task GenerateAsync(CollectionFolder folder, PluginConfiguration config, CancellationToken cancellationToken)
+    /// <summary>
+    /// Generates the collage for one library right away, whether or not it is enabled.
+    /// </summary>
+    /// <param name="libraryId">The library id.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>What happened.</returns>
+    public async Task<GenerateResult> GenerateOneAsync(Guid libraryId, CancellationToken cancellationToken)
+    {
+        var folder = GetCollectionFolders().FirstOrDefault(f => f.Id == libraryId);
+        return folder is null
+            ? GenerateResult.NotFound
+            : await GenerateAsync(folder, Config, cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task<GenerateResult> GenerateAsync(CollectionFolder folder, PluginConfiguration config, CancellationToken cancellationToken)
     {
         var setting = GetSetting(config, folder);
         var state = GetImageState(folder);
         if (state == ImageState.Custom && !setting.ForceOverwrite)
         {
             _logger.LogInformation("Library Collage: skipping {Library}, it has an image that was not created by this plugin", folder.Name);
-            return;
+            return GenerateResult.SkippedOwnImage;
         }
 
         var options = ToOptions(config);
@@ -134,7 +148,7 @@ public class CollageService
                 folder.Name,
                 posters.Count,
                 config.MinimumItems);
-            return;
+            return GenerateResult.TooFewItems;
         }
 
         var jpeg = CollageRenderer.Render(posters, folder.Name, options);
@@ -153,6 +167,7 @@ public class CollageService
         }
 
         _logger.LogInformation("Library Collage: updated image for {Library} from {Count} posters", folder.Name, posters.Count);
+        return GenerateResult.Generated;
     }
 
     private ImageState GetImageState(CollectionFolder folder)
