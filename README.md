@@ -99,7 +99,7 @@ All settings are on the plugin's settings page.
 ## How It Works
 
 - **Poster sources:** Movie libraries use movie posters, TV libraries use series posters, collection libraries use collection posters, and mixed libraries use both movies and series.
-- **Output:** A 1920×1080 JPEG, set as the library's primary image.
+- **Output:** A 1920×1080 JPEG, saved as `poster.jpg` in the library's folder under Jellyfin's `root/default`, and set as the library's primary image. Jellyfin's built-in library image generator replaces images in its metadata folder on every library scan, but it leaves this file alone.
 - **Text fitting:** Long library names shrink to fit or wrap onto two lines.
 - **Small libraries:** Posters repeat to fill the collage, and the same poster is never placed right next to itself.
 - **Your own images are safe:** The plugin remembers which images it created, by path and hash. If a library has an image from anywhere else, the plugin leaves it alone unless you tick **Overwrite anyway**.

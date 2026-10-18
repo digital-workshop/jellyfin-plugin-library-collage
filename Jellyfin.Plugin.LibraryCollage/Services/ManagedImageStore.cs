@@ -46,6 +46,19 @@ public class ManagedImageStore
     }
 
     /// <summary>
+    /// Returns whether the plugin has ever written an image for this library.
+    /// </summary>
+    /// <param name="libraryId">The library id.</param>
+    /// <returns><c>true</c> if there is an entry.</returns>
+    public bool HasEntry(Guid libraryId)
+    {
+        lock (_lock)
+        {
+            return Load().ContainsKey(libraryId);
+        }
+    }
+
+    /// <summary>
     /// Records the image the plugin just wrote.
     /// </summary>
     /// <param name="libraryId">The library id.</param>

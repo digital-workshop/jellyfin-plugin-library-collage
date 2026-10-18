@@ -10,8 +10,8 @@ using Jellyfin.Plugin.LibraryCollage.Rendering;
 using MediaBrowser.Controller.Dto;
 using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Library;
-using MediaBrowser.Controller.Providers;
 using MediaBrowser.Model.Entities;
+using MediaBrowser.Model.IO;
 using Microsoft.Extensions.Logging;
 
 namespace Jellyfin.Plugin.LibraryCollage.Services;
@@ -21,8 +21,12 @@ namespace Jellyfin.Plugin.LibraryCollage.Services;
 /// </summary>
 public class CollageService
 {
+    // Written into the library's own folder: Jellyfin's dynamic image provider regenerates every
+    // library image inside the internal metadata folder on scans, but leaves images elsewhere alone.
+    private const string ImageFileName = "poster.jpg";
+
     private readonly ILibraryManager _libraryManager;
-    private readonly IProviderManager _providerManager;
+    private readonly IFileSystem _fileSystem;
     private readonly ManagedImageStore _store;
     private readonly ILogger<CollageService> _logger;
 
@@ -30,13 +34,13 @@ public class CollageService
     /// Initializes a new instance of the <see cref="CollageService"/> class.
     /// </summary>
     /// <param name="libraryManager">The library manager.</param>
-    /// <param name="providerManager">The provider manager.</param>
+    /// <param name="fileSystem">The file system.</param>
     /// <param name="store">The managed image store.</param>
     /// <param name="logger">The logger.</param>
-    public CollageService(ILibraryManager libraryManager, IProviderManager providerManager, ManagedImageStore store, ILogger<CollageService> logger)
+    public CollageService(ILibraryManager libraryManager, IFileSystem fileSystem, ManagedImageStore store, ILogger<CollageService> logger)
     {
         _libraryManager = libraryManager;
-        _providerManager = providerManager;
+        _fileSystem = fileSystem;
         _store = store;
         _logger = logger;
     }
@@ -153,17 +157,21 @@ public class CollageService
 
         var jpeg = CollageRenderer.Render(posters, folder.Name, options);
 
-        using (var stream = new MemoryStream(jpeg))
-        {
-            await _providerManager.SaveImage(folder, stream, "image/jpeg", ImageType.Primary, null, cancellationToken).ConfigureAwait(false);
-        }
+        var previous = folder.GetImageInfo(ImageType.Primary, 0);
+        var target = Path.Combine(folder.Path, ImageFileName);
+        await File.WriteAllBytesAsync(target, jpeg, cancellationToken).ConfigureAwait(false);
 
+        folder.SetImagePath(ImageType.Primary, 0, _fileSystem.GetFileInfo(target));
         await folder.UpdateToRepositoryAsync(ItemUpdateType.ImageUpdate, cancellationToken).ConfigureAwait(false);
+        _store.Remember(folder.Id, target);
 
-        var written = folder.GetImageInfo(ImageType.Primary, 0);
-        if (written is not null && written.IsLocalFile)
+        // Clean up the replaced image if it was one Jellyfin generated or stored in its metadata folder.
+        if (previous is not null
+            && previous.IsLocalFile
+            && !string.Equals(previous.Path, target, StringComparison.OrdinalIgnoreCase)
+            && IsInMetadataFolder(folder, previous.Path))
         {
-            _store.Remember(folder.Id, written.Path);
+            TryDelete(previous.Path);
         }
 
         _logger.LogInformation("Library Collage: updated image for {Library} from {Count} posters", folder.Name, posters.Count);
@@ -178,7 +186,39 @@ public class CollageService
             return ImageState.None;
         }
 
-        return _store.IsManaged(folder.Id, current.Path) ? ImageState.Managed : ImageState.Custom;
+        if (_store.IsManaged(folder.Id, current.Path))
+        {
+            return ImageState.Managed;
+        }
+
+        // Jellyfin's dynamic image provider replaced an image we wrote earlier (plugin <= 1.0.5 saved
+        // into the metadata folder). Its output is a PNG there; treat that as ours to replace again.
+        if (_store.HasEntry(folder.Id)
+            && IsInMetadataFolder(folder, current.Path)
+            && string.Equals(Path.GetExtension(current.Path), ".png", StringComparison.OrdinalIgnoreCase))
+        {
+            return ImageState.Managed;
+        }
+
+        return ImageState.Custom;
+    }
+
+    private static bool IsInMetadataFolder(BaseItem item, string path)
+    {
+        var metadataPath = item.GetInternalMetadataPath();
+        return path.StartsWith(metadataPath.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private void TryDelete(string path)
+    {
+        try
+        {
+            File.Delete(path);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            _logger.LogWarning(ex, "Library Collage: could not delete old image {Path}", path);
+        }
     }
 
     private List<string> SelectPosters(CollectionFolder folder, PluginConfiguration config, int count)
