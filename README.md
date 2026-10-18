@@ -63,7 +63,8 @@ All settings are on the plugin's settings page.
 | **Minimum titles with poster** | 4 | Libraries with fewer titles are skipped. Missing slots are filled with repeats. |
 | **Darkening** | 50 % | Strength of the dark overlay. |
 | **Write library name** | On | Turns the text off if your theme already shows the name. |
-| **Text style** | Poster | *Poster*, *Classic*, *Netflix*, or *Label*. See below. |
+| **Default text style** | Poster | *Poster*, *Classic*, *Netflix*, or *Label*. See below. |
+| **Text style** (per library) | Default | Overrides the default text style for one library. |
 
 <hr style="background-color:#b4c5fb; height:2px; border:none;">
 

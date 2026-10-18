@@ -47,4 +47,7 @@ public class LibrarySetting
 
     /// <summary>Gets or sets a value indicating whether an image not created by the plugin may be replaced.</summary>
     public bool ForceOverwrite { get; set; }
+
+    /// <summary>Gets or sets the text style for this library; <c>null</c> uses the global style.</summary>
+    public TextStyle? TextStyle { get; set; }
 }

@@ -58,6 +58,9 @@ public class LibraryStatus
     /// <summary>Gets or sets a value indicating whether a custom image may be replaced.</summary>
     public bool ForceOverwrite { get; set; }
 
+    /// <summary>Gets or sets the per-library text style, or <c>null</c> for the global style.</summary>
+    public string? TextStyle { get; set; }
+
     /// <summary>Gets or sets the image state.</summary>
     public ImageState ImageState { get; set; }
 }

@@ -28,6 +28,8 @@
             }
             #LibraryCollageConfigPage .lc-preview-btn:hover { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.6); }
             #LibraryCollageConfigPage .lc-preview-btn .material-icons { font-size: 1.15em; }
+            #LibraryCollageConfigPage .lc-style { background: rgba(0,0,0,.25); color: inherit; border: 1px solid rgba(255,255,255,.25); border-radius: .4em; padding: .25em .4em; font: inherit; font-size: .9em; }
+            #LibraryCollageConfigPage .lc-style option { color: #000; }
         </style>
         <div data-role="content">
             <div class="content-primary">
@@ -39,9 +41,9 @@
                     </p>
                     <table class="lc-table">
                         <thead>
-                            <tr><th>Enabled</th><th>Library</th><th>Current image</th><th>Overwrite anyway</th><th></th></tr>
+                            <tr><th>Enabled</th><th>Library</th><th>Current image</th><th>Overwrite anyway</th><th>Text style</th><th></th></tr>
                         </thead>
-                        <tbody id="lcLibraries"><tr><td colspan="5">Loading…</td></tr></tbody>
+                        <tbody id="lcLibraries"><tr><td colspan="6">Loading…</td></tr></tbody>
                     </table>
                     <p id="lcStatus" class="fieldDescription" aria-live="polite"></p>
                     <img id="lcPreview" class="lc-preview" alt="Preview">
@@ -86,7 +88,7 @@
                         </label>
                     </div>
                     <div class="selectContainer">
-                        <label class="selectLabel" for="lcTextStyle">Text style</label>
+                        <label class="selectLabel" for="lcTextStyle">Default text style</label>
                         <select is="emby-select" id="lcTextStyle" class="emby-select-withcolor emby-select">
                             <option value="Poster">Poster (upper case, condensed)</option>
                             <option value="Classic">Classic (bold, centered)</option>
@@ -126,10 +128,20 @@
                     return div.innerHTML;
                 }
 
+                var styleNames = [['', 'Default'], ['Poster', 'Poster'], ['Classic', 'Classic'], ['Netflix', 'Netflix'], ['Label', 'Label']];
+
+                function styleSelect(index, value) {
+                    return '<select class="lc-style" data-index="' + index + '">'
+                        + styleNames.map(function (s) {
+                            return '<option value="' + s[0] + '"' + ((value || '') === s[0] ? ' selected' : '') + '>' + s[1] + '</option>';
+                        }).join('')
+                        + '</select>';
+                }
+
                 function renderLibraries() {
                     var body = page.querySelector('#lcLibraries');
                     if (!libraries.length) {
-                        body.innerHTML = '<tr><td colspan="5">No libraries found.</td></tr>';
+                        body.innerHTML = '<tr><td colspan="6">No libraries found.</td></tr>';
                         return;
                     }
 
@@ -140,6 +152,7 @@
                             + '<td>' + escapeHtml(lib.Name) + '</td>'
                             + '<td><span class="lc-badge ' + state[1] + '">' + state[0] + '</span></td>'
                             + '<td><input type="checkbox" data-index="' + i + '" data-field="ForceOverwrite"' + (lib.ForceOverwrite ? ' checked' : '') + '></td>'
+                            + '<td>' + styleSelect(i, lib.TextStyle) + '</td>'
                             + '<td class="lc-row-actions"><button type="button" class="lc-preview-btn" data-preview="' + i + '"><span class="material-icons" aria-hidden="true">visibility</span>Preview</button>'
                             + '<button type="button" class="lc-preview-btn" data-generate="' + i + '"><span class="material-icons" aria-hidden="true">auto_awesome</span>Generate</button></td>'
                             + '</tr>';
@@ -151,8 +164,12 @@
                         libraries[cb.getAttribute('data-index')][cb.getAttribute('data-field')] = cb.checked;
                     });
 
+                    page.querySelectorAll('#lcLibraries select.lc-style').forEach(function (select) {
+                        libraries[select.getAttribute('data-index')].TextStyle = select.value || null;
+                    });
+
                     config.Libraries = libraries.map(function (lib) {
-                        return { LibraryId: lib.Id, Enabled: lib.Enabled, ForceOverwrite: lib.ForceOverwrite };
+                        return { LibraryId: lib.Id, Enabled: lib.Enabled, ForceOverwrite: lib.ForceOverwrite, TextStyle: lib.TextStyle || null };
                     });
                     config.Layout = page.querySelector('#lcLayout').value;
                     config.SelectionMode = page.querySelector('#lcSelectionMode').value;

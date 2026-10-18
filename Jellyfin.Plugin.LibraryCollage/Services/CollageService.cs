@@ -65,6 +65,7 @@ public class CollageService
                     CollectionType = folder.CollectionType?.ToString(),
                     Enabled = setting.Enabled,
                     ForceOverwrite = setting.ForceOverwrite,
+                    TextStyle = setting.TextStyle?.ToString(),
                     ImageState = GetImageState(folder)
                 };
             })
@@ -114,7 +115,7 @@ public class CollageService
         }
 
         var config = Config;
-        var options = ToOptions(config);
+        var options = ToOptions(config, GetSetting(config, folder));
         var posters = SelectPosters(folder, config, CollageRenderer.GetCellCount(options));
         return posters.Count == 0 ? null : CollageRenderer.Render(posters, folder.Name, options);
     }
@@ -143,7 +144,7 @@ public class CollageService
             return GenerateResult.SkippedOwnImage;
         }
 
-        var options = ToOptions(config);
+        var options = ToOptions(config, setting);
         var posters = SelectPosters(folder, config, CollageRenderer.GetCellCount(options));
         if (posters.Count < Math.Max(1, config.MinimumItems))
         {
@@ -275,12 +276,12 @@ public class CollageService
         _ => [BaseItemKind.Movie, BaseItemKind.Series],
     };
 
-    private static CollageOptions ToOptions(PluginConfiguration config) => new()
+    private static CollageOptions ToOptions(PluginConfiguration config, LibrarySetting setting) => new()
     {
         Layout = config.Layout,
         DimPercent = config.DimPercent,
         DrawText = config.DrawText,
-        TextStyle = config.TextStyle
+        TextStyle = setting.TextStyle ?? config.TextStyle
     };
 
     private static LibrarySetting GetSetting(PluginConfiguration config, CollectionFolder folder)
