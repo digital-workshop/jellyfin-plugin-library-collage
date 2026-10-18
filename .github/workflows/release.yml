@@ -1,0 +1,65 @@
+# Push a tag like v1.0.0 to build the plugin, publish a GitHub release
+# and add the version to manifest.json on main.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+env:
+  TARGET_ABI: 12.2.0.0
+  PROJECT: Jellyfin.Plugin.LibraryCollage
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Determine version
+        run: |
+          v="${GITHUB_REF_NAME#v}"
+          while [ "$(echo "$v" | tr -cd '.' | wc -c)" -lt 3 ]; do v="$v.0"; done
+          echo "VERSION=$v" >> "$GITHUB_ENV"
+          notes="$(git tag -l --format='%(contents)' "$GITHUB_REF_NAME" | sed '/-----BEGIN PGP/,$d')"
+          [ -z "$notes" ] && notes="Release $GITHUB_REF_NAME"
+          { echo 'CHANGELOG<<EOF'; echo "$notes"; echo 'EOF'; } >> "$GITHUB_ENV"
+
+      - name: Test
+        run: dotnet test -c Release
+
+      - name: Build
+        run: |
+          dotnet publish "$PROJECT" -c Release -o out \
+            -p:Version="$VERSION" -p:AssemblyVersion="$VERSION" -p:FileVersion="$VERSION"
+          zip -j "library-collage_$VERSION.zip" "out/$PROJECT.dll"
+          echo "CHECKSUM=$(md5sum "library-collage_$VERSION.zip" | cut -d' ' -f1)" >> "$GITHUB_ENV"
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" "library-collage_$VERSION.zip" --title "$GITHUB_REF_NAME" --notes "$CHANGELOG"
+
+      - name: Update manifest
+        run: |
+          git fetch origin main
+          git checkout main
+          url="https://github.com/${GITHUB_REPOSITORY}/releases/download/${GITHUB_REF_NAME}/library-collage_${VERSION}.zip"
+          jq --arg v "$VERSION" --arg cl "$CHANGELOG" --arg abi "$TARGET_ABI" --arg url "$url" \
+             --arg cs "$CHECKSUM" --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+             '.[0].versions = ([{version: $v, changelog: $cl, targetAbi: $abi, sourceUrl: $url, checksum: $cs, timestamp: $ts}]
+                               + (.[0].versions | map(select(.version != $v))))' \
+             manifest.json > manifest.tmp && mv manifest.tmp manifest.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "Manifest: $VERSION"
+          git push origin main

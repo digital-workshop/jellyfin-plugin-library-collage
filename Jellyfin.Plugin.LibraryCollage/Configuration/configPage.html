@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <title>Library Collage</title>
+</head>
+<body>
+    <div id="LibraryCollageConfigPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-input,emby-button,emby-select,emby-checkbox">
+        <style>
+            #LibraryCollageConfigPage .lc-table { width: 100%; border-collapse: collapse; margin-bottom: 1em; }
+            #LibraryCollageConfigPage .lc-table th { text-align: left; font-weight: 500; opacity: .7; padding: .4em .5em; }
+            #LibraryCollageConfigPage .lc-table td { padding: .4em .5em; border-top: 1px solid rgba(255,255,255,.08); vertical-align: middle; }
+            #LibraryCollageConfigPage .lc-badge { display: inline-block; padding: .15em .6em; border-radius: 1em; font-size: .85em; white-space: nowrap; }
+            #LibraryCollageConfigPage .lc-none { background: rgba(255,255,255,.1); }
+            #LibraryCollageConfigPage .lc-managed { background: rgba(82,181,75,.25); }
+            #LibraryCollageConfigPage .lc-custom { background: rgba(230,160,40,.25); }
+            #LibraryCollageConfigPage .lc-preview { max-width: 100%; border-radius: .5em; margin-top: 1em; display: none; }
+            #LibraryCollageConfigPage .lc-range { width: 100%; max-width: 30em; }
+            #LibraryCollageConfigPage .lc-row-actions button { margin: 0; }
+        </style>
+        <div data-role="content">
+            <div class="content-primary">
+                <form id="LibraryCollageConfigForm">
+                    <h2 class="sectionTitle">Bibliotheken</h2>
+                    <p class="fieldDescription">
+                        Bibliotheken mit einem eigenen Bild (nicht von diesem Plugin) werden übersprungen,
+                        außer „Trotzdem überschreiben“ ist angehakt.
+                    </p>
+                    <table class="lc-table">
+                        <thead>
+                            <tr><th>Aktiv</th><th>Bibliothek</th><th>Aktuelles Bild</th><th>Trotzdem überschreiben</th><th></th></tr>
+                        </thead>
+                        <tbody id="lcLibraries"><tr><td colspan="5">Lade…</td></tr></tbody>
+                    </table>
+                    <img id="lcPreview" class="lc-preview" alt="Vorschau">
+
+                    <h2 class="sectionTitle">Collage</h2>
+                    <div class="selectContainer">
+                        <label class="selectLabel" for="lcLayout">Layout</label>
+                        <select is="emby-select" id="lcLayout" class="emby-select-withcolor emby-select">
+                            <option value="Tilted">Schräge Poster</option>
+                            <option value="Grid">Gerades Raster</option>
+                        </select>
+                    </div>
+                    <div class="selectContainer">
+                        <label class="selectLabel" for="lcSelectionMode">Auswahl der Poster</label>
+                        <select is="emby-select" id="lcSelectionMode" class="emby-select-withcolor emby-select">
+                            <option value="RandomTopRated">Zufällig aus den Top-bewerteten</option>
+                            <option value="Random">Zufällig</option>
+                            <option value="Newest">Zuletzt hinzugefügt</option>
+                            <option value="TopRated">Am besten bewertet</option>
+                        </select>
+                    </div>
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="lcTopRatedPercent">Top-bewertete: beste X %</label>
+                        <input is="emby-input" type="number" id="lcTopRatedPercent" min="1" max="100">
+                        <div class="fieldDescription">Nur für „Zufällig aus den Top-bewerteten“.</div>
+                    </div>
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="lcMinimumItems">Mindestanzahl Titel mit Poster</label>
+                        <input is="emby-input" type="number" id="lcMinimumItems" min="1" max="100">
+                        <div class="fieldDescription">Kleinere Bibliotheken werden übersprungen. Fehlende Plätze werden mit Wiederholungen gefüllt.</div>
+                    </div>
+                    <div class="inputContainer">
+                        <label for="lcDimPercent">Abdunklung: <span id="lcDimValue"></span> %</label>
+                        <input type="range" id="lcDimPercent" class="lc-range" min="0" max="90" step="5">
+                    </div>
+
+                    <h2 class="sectionTitle">Text</h2>
+                    <div class="checkboxContainer">
+                        <label class="emby-checkbox-label">
+                            <input is="emby-checkbox" type="checkbox" id="lcDrawText">
+                            <span>Bibliotheksname ins Bild schreiben</span>
+                        </label>
+                    </div>
+                    <div class="selectContainer">
+                        <label class="selectLabel" for="lcTextStyle">Textstil</label>
+                        <select is="emby-select" id="lcTextStyle" class="emby-select-withcolor emby-select">
+                            <option value="Poster">Plakativ (Großbuchstaben, schmal)</option>
+                            <option value="Classic">Klassisch (zentriert, fett)</option>
+                            <option value="Netflix">Netflix (unten links, mit Verlauf)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <button is="emby-button" type="submit" class="raised button-submit block emby-button">
+                            <span>Speichern</span>
+                        </button>
+                        <button is="emby-button" type="button" id="lcGenerate" class="raised block emby-button">
+                            <span>Speichern &amp; jetzt alle erzeugen</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <script type="text/javascript">
+            (function () {
+                var pluginId = '0f93e2db-b456-4e09-a09a-76154a40aed6';
+                var page = document.querySelector('#LibraryCollageConfigPage');
+                var config = null;
+                var libraries = [];
+                var previewUrl = null;
+
+                var stateLabels = {
+                    None: ['Kein Bild', 'lc-none'],
+                    Managed: ['✓ Vom Plugin', 'lc-managed'],
+                    Custom: ['🔒 Eigenes Bild', 'lc-custom']
+                };
+
+                function escapeHtml(s) {
+                    var div = document.createElement('div');
+                    div.textContent = s;
+                    return div.innerHTML;
+                }
+
+                function renderLibraries() {
+                    var body = page.querySelector('#lcLibraries');
+                    if (!libraries.length) {
+                        body.innerHTML = '<tr><td colspan="5">Keine Bibliotheken gefunden.</td></tr>';
+                        return;
+                    }
+
+                    body.innerHTML = libraries.map(function (lib, i) {
+                        var state = stateLabels[lib.ImageState] || stateLabels.None;
+                        return '<tr>'
+                            + '<td><input type="checkbox" data-index="' + i + '" data-field="Enabled"' + (lib.Enabled ? ' checked' : '') + '></td>'
+                            + '<td>' + escapeHtml(lib.Name) + '</td>'
+                            + '<td><span class="lc-badge ' + state[1] + '">' + state[0] + '</span></td>'
+                            + '<td><input type="checkbox" data-index="' + i + '" data-field="ForceOverwrite"' + (lib.ForceOverwrite ? ' checked' : '') + '></td>'
+                            + '<td class="lc-row-actions"><button is="emby-button" type="button" class="emby-button" data-preview="' + i + '">Vorschau</button></td>'
+                            + '</tr>';
+                    }).join('');
+                }
+
+                function readForm() {
+                    page.querySelectorAll('#lcLibraries input[type=checkbox]').forEach(function (cb) {
+                        libraries[cb.getAttribute('data-index')][cb.getAttribute('data-field')] = cb.checked;
+                    });
+
+                    config.Libraries = libraries.map(function (lib) {
+                        return { LibraryId: lib.Id, Enabled: lib.Enabled, ForceOverwrite: lib.ForceOverwrite };
+                    });
+                    config.Layout = page.querySelector('#lcLayout').value;
+                    config.SelectionMode = page.querySelector('#lcSelectionMode').value;
+                    config.TopRatedPercent = parseInt(page.querySelector('#lcTopRatedPercent').value, 10) || 50;
+                    config.MinimumItems = parseInt(page.querySelector('#lcMinimumItems').value, 10) || 4;
+                    config.DimPercent = parseInt(page.querySelector('#lcDimPercent').value, 10);
+                    config.DrawText = page.querySelector('#lcDrawText').checked;
+                    config.TextStyle = page.querySelector('#lcTextStyle').value;
+                }
+
+                function save() {
+                    readForm();
+                    return ApiClient.updatePluginConfiguration(pluginId, config);
+                }
+
+                function load() {
+                    Dashboard.showLoadingMsg();
+                    Promise.all([
+                        ApiClient.getPluginConfiguration(pluginId),
+                        ApiClient.getJSON(ApiClient.getUrl('LibraryCollage/Libraries'))
+                    ]).then(function (results) {
+                        config = results[0];
+                        libraries = results[1];
+                        page.querySelector('#lcLayout').value = config.Layout;
+                        page.querySelector('#lcSelectionMode').value = config.SelectionMode;
+                        page.querySelector('#lcTopRatedPercent').value = config.TopRatedPercent;
+                        page.querySelector('#lcMinimumItems').value = config.MinimumItems;
+                        page.querySelector('#lcDimPercent').value = config.DimPercent;
+                        page.querySelector('#lcDimValue').textContent = config.DimPercent;
+                        page.querySelector('#lcDrawText').checked = config.DrawText;
+                        page.querySelector('#lcTextStyle').value = config.TextStyle;
+                        renderLibraries();
+                    }).finally(function () {
+                        Dashboard.hideLoadingMsg();
+                    });
+                }
+
+                function showPreview(index) {
+                    var img = page.querySelector('#lcPreview');
+                    Dashboard.showLoadingMsg();
+                    save().then(function () {
+                        return fetch(ApiClient.getUrl('LibraryCollage/Preview/' + libraries[index].Id), {
+                            headers: { 'Authorization': 'MediaBrowser Token="' + ApiClient.accessToken() + '"' }
+                        });
+                    }).then(function (response) {
+                        if (!response.ok) {
+                            throw new Error('preview');
+                        }
+                        return response.blob();
+                    }).then(function (blob) {
+                        if (previewUrl) {
+                            URL.revokeObjectURL(previewUrl);
+                        }
+                        previewUrl = URL.createObjectURL(blob);
+                        img.src = previewUrl;
+                        img.style.display = 'block';
+                    }).catch(function () {
+                        img.style.display = 'none';
+                        Dashboard.alert('Keine Vorschau möglich – hat die Bibliothek Titel mit Postern?');
+                    }).finally(function () {
+                        Dashboard.hideLoadingMsg();
+                    });
+                }
+
+                page.addEventListener('pageshow', load);
+
+                page.querySelector('#lcDimPercent').addEventListener('input', function (e) {
+                    page.querySelector('#lcDimValue').textContent = e.target.value;
+                });
+
+                page.querySelector('#lcLibraries').addEventListener('click', function (e) {
+                    var button = e.target.closest('[data-preview]');
+                    if (button) {
+                        showPreview(parseInt(button.getAttribute('data-preview'), 10));
+                    }
+                });
+
+                page.querySelector('#LibraryCollageConfigForm').addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    Dashboard.showLoadingMsg();
+                    save().then(Dashboard.processPluginConfigurationUpdateResult);
+                    return false;
+                });
+
+                page.querySelector('#lcGenerate').addEventListener('click', function () {
+                    Dashboard.showLoadingMsg();
+                    save().then(function () {
+                        return ApiClient.ajax({ type: 'POST', url: ApiClient.getUrl('LibraryCollage/Generate') });
+                    }).then(function () {
+                        Dashboard.hideLoadingMsg();
+                        Dashboard.alert('Gestartet. Den Fortschritt siehst du unter Dashboard → Geplante Aufgaben.');
+                    }).catch(function () {
+                        Dashboard.hideLoadingMsg();
+                        Dashboard.alert('Start fehlgeschlagen.');
+                    });
+                });
+            })();
+        </script>
+    </div>
+</body>
+</html>

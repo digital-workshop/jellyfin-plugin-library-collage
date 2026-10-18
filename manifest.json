@@ -1,0 +1,12 @@
+[
+  {
+    "guid": "0f93e2db-b456-4e09-a09a-76154a40aed6",
+    "name": "Library Collage",
+    "description": "Automatically generates library cover images: a tilted collage of posters, darkened, with the library name on top.",
+    "overview": "Poster collage images for your libraries",
+    "owner": "digital-workshop",
+    "category": "General",
+    "imageUrl": "https://raw.githubusercontent.com/digital-workshop/jellyfin-plugin-library-collage/main/docs/preview.jpg",
+    "versions": []
+  }
+]
