@@ -63,7 +63,7 @@ All settings are on the plugin's settings page.
 | **Minimum titles with poster** | 4 | Libraries with fewer titles are skipped. Missing slots are filled with repeats. |
 | **Darkening** | 50 % | Strength of the dark overlay. |
 | **Write library name** | On | Turns the text off if your theme already shows the name. |
-| **Text style** | Poster | *Poster*, *Classic*, or *Netflix*. See below. |
+| **Text style** | Poster | *Poster*, *Classic*, *Netflix*, or *Label*. See below. |
 
 <hr style="background-color:#b4c5fb; height:2px; border:none;">
 
@@ -86,9 +86,16 @@ All settings are on the plugin's settings page.
       <b>Netflix</b>: bottom left with a gradient
     </td>
     <td align="center" width="50%">
+      <img src="docs/style-label.jpg" alt="Label style" width="100%"><br>
+      <b>Label</b>: dark text on a light box
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
       <img src="docs/layout-grid.jpg" alt="Grid layout" width="100%"><br>
       <b>Straight grid</b> layout
     </td>
+    <td></td>
   </tr>
 </table>
 

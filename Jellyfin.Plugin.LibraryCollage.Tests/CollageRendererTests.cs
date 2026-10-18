@@ -23,6 +23,8 @@ public sealed class CollageRendererTests : IDisposable
     [InlineData(CollageLayout.Tilted, TextStyle.Classic, "Filme")]
     [InlineData(CollageLayout.Tilted, TextStyle.Netflix, "Action")]
     [InlineData(CollageLayout.Grid, TextStyle.Poster, "Sammlungen")]
+    [InlineData(CollageLayout.Tilted, TextStyle.Label, "Fantasy")]
+    [InlineData(CollageLayout.Tilted, TextStyle.Label, "Kinderfilme Klassiker der Achtziger")]
     [InlineData(CollageLayout.Tilted, TextStyle.Poster, "Kinderfilme Klassiker der Achtziger")]
     public void Render_ProducesFullHdJpeg(CollageLayout layout, TextStyle style, string title)
     {

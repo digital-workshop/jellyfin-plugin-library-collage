@@ -24,7 +24,10 @@ public enum TextStyle
     Poster = 1,
 
     /// <summary>Bottom left, smaller, with a gradient towards the bottom.</summary>
-    Netflix = 2
+    Netflix = 2,
+
+    /// <summary>Centered, dark upper case text on a translucent light box.</summary>
+    Label = 3
 }
 
 /// <summary>

@@ -285,6 +285,7 @@ public static class CollageRenderer
         var (typeface, text, targetSize, maxWidth) = options.TextStyle switch
         {
             TextStyle.Poster => (DisplayTypeface.Value, title.ToUpper(CultureInfo.CurrentCulture), h * 0.30f, w * 0.88f),
+            TextStyle.Label => (DisplayTypeface.Value, title.ToUpper(CultureInfo.CurrentCulture), h * 0.26f, w * 0.74f),
             TextStyle.Netflix => (SansTypeface.Value, title, h * 0.10f, w * 0.88f),
             _ => (SansTypeface.Value, title, h * 0.19f, w * 0.86f),
         };
@@ -318,10 +319,43 @@ public static class CollageRenderer
         }
 
         var firstBaseline = ((h - blockHeight) / 2f) + capHeight;
+
+        if (options.TextStyle == TextStyle.Label)
+        {
+            DrawLabelBox(canvas, font, lines, w / 2f, h / 2f, blockHeight, capHeight);
+            paint.Color = new SKColor(24, 24, 28);
+            paint.ImageFilter = null;
+        }
+
         for (var i = 0; i < lines.Count; i++)
         {
             canvas.DrawText(lines[i], w / 2f, firstBaseline + (lineHeight * i), SKTextAlign.Center, font, paint);
         }
+    }
+
+    /// <summary>
+    /// Draws the translucent light box behind the text of the label style.
+    /// </summary>
+    private static void DrawLabelBox(SKCanvas canvas, SKFont font, List<string> lines, float centerX, float centerY, float blockHeight, float capHeight)
+    {
+        var textWidth = lines.Max(l => font.MeasureText(l));
+        var padX = capHeight * 0.32f;
+        var padY = capHeight * 0.26f;
+        var boxWidth = textWidth + (2 * padX);
+        var boxHeight = blockHeight + (2 * padY);
+        var box = SKRect.Create(centerX - (boxWidth / 2f), centerY - (boxHeight / 2f), boxWidth, boxHeight);
+        var radius = capHeight * 0.16f;
+
+        using var shadow = new SKPaint
+        {
+            Color = SKColors.Black.WithAlpha(110),
+            IsAntialias = true,
+            MaskFilter = SKMaskFilter.CreateBlur(SKBlurStyle.Normal, capHeight * 0.08f)
+        };
+        canvas.DrawRoundRect(box.Left, box.Top + (capHeight * 0.03f), box.Width, box.Height, radius, radius, shadow);
+
+        using var fill = new SKPaint { Color = new SKColor(235, 235, 240, 205), IsAntialias = true };
+        canvas.DrawRoundRect(box, radius, radius, fill);
     }
 
     /// <summary>
