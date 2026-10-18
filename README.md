@@ -102,7 +102,7 @@ All settings are on the plugin's settings page.
 - **Text fitting:** Long library names shrink to fit or wrap onto two lines.
 - **Small libraries:** Posters repeat to fill the collage, and the same poster is never placed right next to itself.
 - **Your own images are safe:** The plugin remembers which images it created, by path and hash. If a library has an image from anywhere else, the plugin leaves it alone unless you tick **Overwrite anyway**.
-- **Scheduled task:** The task *Bibliotheks-Collagen erzeugen* runs every Sunday at 04:00. Change or add triggers under **Dashboard → Scheduled Tasks**. With random selection, each run produces a fresh mix.
+- **Scheduled task:** The task *Generate library collages* runs every Sunday at 04:00. Change or add triggers under **Dashboard → Scheduled Tasks**. With random selection, each run produces a fresh mix.
 
 <hr style="background-color:#b4c5fb; height:2px; border:none;">
 
@@ -135,7 +135,7 @@ Clients cache images. Reload the web UI, or restart the app.
 
 > ### Can I change the schedule?
 
-Yes. Go to **Dashboard → Scheduled Tasks → Library Collage → Bibliotheks-Collagen erzeugen**.
+Yes. Go to **Dashboard → Scheduled Tasks → Library Collage → Generate library collages**.
 
 <hr style="background-color:#b4c5fb; height:2px; border:none;">
 

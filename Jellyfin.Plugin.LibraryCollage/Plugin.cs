@@ -32,7 +32,7 @@ public class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
     public override Guid Id => Guid.Parse("0f93e2db-b456-4e09-a09a-76154a40aed6");
 
     /// <inheritdoc />
-    public override string Description => "Erzeugt Bibliotheksbilder als abgedunkelte Poster-Collage mit dem Bibliotheksnamen.";
+    public override string Description => "Generates library images from a darkened poster collage with the library name on top.";
 
     /// <summary>
     /// Gets the current plugin instance.

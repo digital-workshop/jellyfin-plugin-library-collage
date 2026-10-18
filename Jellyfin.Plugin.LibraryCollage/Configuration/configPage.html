@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <title>Library Collage</title>
@@ -21,48 +21,48 @@
         <div data-role="content">
             <div class="content-primary">
                 <form id="LibraryCollageConfigForm">
-                    <h2 class="sectionTitle">Bibliotheken</h2>
+                    <h2 class="sectionTitle">Libraries</h2>
                     <p class="fieldDescription">
-                        Bibliotheken mit einem eigenen Bild (nicht von diesem Plugin) werden übersprungen,
-                        außer „Trotzdem überschreiben“ ist angehakt.
+                        Libraries with their own image (not created by this plugin) are skipped
+                        unless "Overwrite anyway" is ticked.
                     </p>
                     <table class="lc-table">
                         <thead>
-                            <tr><th>Aktiv</th><th>Bibliothek</th><th>Aktuelles Bild</th><th>Trotzdem überschreiben</th><th></th></tr>
+                            <tr><th>Enabled</th><th>Library</th><th>Current image</th><th>Overwrite anyway</th><th></th></tr>
                         </thead>
-                        <tbody id="lcLibraries"><tr><td colspan="5">Lade…</td></tr></tbody>
+                        <tbody id="lcLibraries"><tr><td colspan="5">Loading…</td></tr></tbody>
                     </table>
-                    <img id="lcPreview" class="lc-preview" alt="Vorschau">
+                    <img id="lcPreview" class="lc-preview" alt="Preview">
 
                     <h2 class="sectionTitle">Collage</h2>
                     <div class="selectContainer">
                         <label class="selectLabel" for="lcLayout">Layout</label>
                         <select is="emby-select" id="lcLayout" class="emby-select-withcolor emby-select">
-                            <option value="Tilted">Schräge Poster</option>
-                            <option value="Grid">Gerades Raster</option>
+                            <option value="Tilted">Tilted posters</option>
+                            <option value="Grid">Straight grid</option>
                         </select>
                     </div>
                     <div class="selectContainer">
-                        <label class="selectLabel" for="lcSelectionMode">Auswahl der Poster</label>
+                        <label class="selectLabel" for="lcSelectionMode">Poster selection</label>
                         <select is="emby-select" id="lcSelectionMode" class="emby-select-withcolor emby-select">
-                            <option value="RandomTopRated">Zufällig aus den Top-bewerteten</option>
-                            <option value="Random">Zufällig</option>
-                            <option value="Newest">Zuletzt hinzugefügt</option>
-                            <option value="TopRated">Am besten bewertet</option>
+                            <option value="RandomTopRated">Random from top rated</option>
+                            <option value="Random">Random</option>
+                            <option value="Newest">Recently added</option>
+                            <option value="TopRated">Top rated</option>
                         </select>
                     </div>
                     <div class="inputContainer">
-                        <label class="inputLabel inputLabelUnfocused" for="lcTopRatedPercent">Top-bewertete: beste X %</label>
+                        <label class="inputLabel inputLabelUnfocused" for="lcTopRatedPercent">Top rated: best X %</label>
                         <input is="emby-input" type="number" id="lcTopRatedPercent" min="1" max="100">
-                        <div class="fieldDescription">Nur für „Zufällig aus den Top-bewerteten“.</div>
+                        <div class="fieldDescription">Only used by "Random from top rated".</div>
                     </div>
                     <div class="inputContainer">
-                        <label class="inputLabel inputLabelUnfocused" for="lcMinimumItems">Mindestanzahl Titel mit Poster</label>
+                        <label class="inputLabel inputLabelUnfocused" for="lcMinimumItems">Minimum titles with poster</label>
                         <input is="emby-input" type="number" id="lcMinimumItems" min="1" max="100">
-                        <div class="fieldDescription">Kleinere Bibliotheken werden übersprungen. Fehlende Plätze werden mit Wiederholungen gefüllt.</div>
+                        <div class="fieldDescription">Smaller libraries are skipped. Missing slots are filled with repeats.</div>
                     </div>
                     <div class="inputContainer">
-                        <label for="lcDimPercent">Abdunklung: <span id="lcDimValue"></span> %</label>
+                        <label for="lcDimPercent">Darkening: <span id="lcDimValue"></span> %</label>
                         <input type="range" id="lcDimPercent" class="lc-range" min="0" max="90" step="5">
                     </div>
 
@@ -70,24 +70,24 @@
                     <div class="checkboxContainer">
                         <label class="emby-checkbox-label">
                             <input is="emby-checkbox" type="checkbox" id="lcDrawText">
-                            <span>Bibliotheksname ins Bild schreiben</span>
+                            <span>Write library name into the image</span>
                         </label>
                     </div>
                     <div class="selectContainer">
-                        <label class="selectLabel" for="lcTextStyle">Textstil</label>
+                        <label class="selectLabel" for="lcTextStyle">Text style</label>
                         <select is="emby-select" id="lcTextStyle" class="emby-select-withcolor emby-select">
-                            <option value="Poster">Plakativ (Großbuchstaben, schmal)</option>
-                            <option value="Classic">Klassisch (zentriert, fett)</option>
-                            <option value="Netflix">Netflix (unten links, mit Verlauf)</option>
+                            <option value="Poster">Poster (upper case, condensed)</option>
+                            <option value="Classic">Classic (bold, centered)</option>
+                            <option value="Netflix">Netflix (bottom left, with gradient)</option>
                         </select>
                     </div>
 
                     <div>
                         <button is="emby-button" type="submit" class="raised button-submit block emby-button">
-                            <span>Speichern</span>
+                            <span>Save</span>
                         </button>
                         <button is="emby-button" type="button" id="lcGenerate" class="raised block emby-button">
-                            <span>Speichern &amp; jetzt alle erzeugen</span>
+                            <span>Save &amp; generate now</span>
                         </button>
                     </div>
                 </form>
@@ -102,9 +102,9 @@
                 var previewUrl = null;
 
                 var stateLabels = {
-                    None: ['Kein Bild', 'lc-none'],
-                    Managed: ['✓ Vom Plugin', 'lc-managed'],
-                    Custom: ['🔒 Eigenes Bild', 'lc-custom']
+                    None: ['No image', 'lc-none'],
+                    Managed: ['✓ Plugin', 'lc-managed'],
+                    Custom: ['🔒 Own image', 'lc-custom']
                 };
 
                 function escapeHtml(s) {
@@ -116,7 +116,7 @@
                 function renderLibraries() {
                     var body = page.querySelector('#lcLibraries');
                     if (!libraries.length) {
-                        body.innerHTML = '<tr><td colspan="5">Keine Bibliotheken gefunden.</td></tr>';
+                        body.innerHTML = '<tr><td colspan="5">No libraries found.</td></tr>';
                         return;
                     }
 
@@ -127,7 +127,7 @@
                             + '<td>' + escapeHtml(lib.Name) + '</td>'
                             + '<td><span class="lc-badge ' + state[1] + '">' + state[0] + '</span></td>'
                             + '<td><input type="checkbox" data-index="' + i + '" data-field="ForceOverwrite"' + (lib.ForceOverwrite ? ' checked' : '') + '></td>'
-                            + '<td class="lc-row-actions"><button is="emby-button" type="button" class="emby-button" data-preview="' + i + '">Vorschau</button></td>'
+                            + '<td class="lc-row-actions"><button is="emby-button" type="button" class="emby-button" data-preview="' + i + '">Preview</button></td>'
                             + '</tr>';
                     }).join('');
                 }
@@ -197,7 +197,7 @@
                         img.style.display = 'block';
                     }).catch(function () {
                         img.style.display = 'none';
-                        Dashboard.alert('Keine Vorschau möglich – hat die Bibliothek Titel mit Postern?');
+                        Dashboard.alert('No preview available. Does the library contain titles with posters?');
                     }).finally(function () {
                         Dashboard.hideLoadingMsg();
                     });
@@ -229,10 +229,10 @@
                         return ApiClient.ajax({ type: 'POST', url: ApiClient.getUrl('LibraryCollage/Generate') });
                     }).then(function () {
                         Dashboard.hideLoadingMsg();
-                        Dashboard.alert('Gestartet. Den Fortschritt siehst du unter Dashboard → Geplante Aufgaben.');
+                        Dashboard.alert('Started. See Dashboard → Scheduled Tasks for progress.');
                     }).catch(function () {
                         Dashboard.hideLoadingMsg();
-                        Dashboard.alert('Start fehlgeschlagen.');
+                        Dashboard.alert('Could not start the task.');
                     });
                 });
             })();

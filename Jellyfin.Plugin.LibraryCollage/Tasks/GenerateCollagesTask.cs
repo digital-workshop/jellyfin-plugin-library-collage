@@ -24,13 +24,13 @@ public class GenerateCollagesTask : IScheduledTask
     }
 
     /// <inheritdoc />
-    public string Name => "Bibliotheks-Collagen erzeugen";
+    public string Name => "Generate library collages";
 
     /// <inheritdoc />
     public string Key => "LibraryCollageGenerate";
 
     /// <inheritdoc />
-    public string Description => "Erzeugt für die ausgewählten Bibliotheken eine neue Poster-Collage als Bibliotheksbild.";
+    public string Description => "Creates a new poster collage as the library image for the selected libraries.";
 
     /// <inheritdoc />
     public string Category => "Library Collage";
