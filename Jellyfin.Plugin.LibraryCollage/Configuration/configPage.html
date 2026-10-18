@@ -16,7 +16,16 @@
             #LibraryCollageConfigPage .lc-custom { background: rgba(230,160,40,.25); }
             #LibraryCollageConfigPage .lc-preview { max-width: 100%; border-radius: .5em; margin-top: 1em; display: none; }
             #LibraryCollageConfigPage .lc-range { width: 100%; max-width: 30em; }
-            #LibraryCollageConfigPage .lc-row-actions button { margin: 0; }
+            #LibraryCollageConfigPage .lc-row-actions { text-align: right; }
+            #LibraryCollageConfigPage .lc-preview-btn {
+                display: inline-flex; align-items: center; gap: .35em;
+                padding: .3em .9em; margin: 0; border-radius: 1em;
+                border: 1px solid rgba(255,255,255,.3); background: transparent;
+                color: inherit; font: inherit; font-size: .9em; cursor: pointer;
+                transition: background .15s, border-color .15s;
+            }
+            #LibraryCollageConfigPage .lc-preview-btn:hover { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.6); }
+            #LibraryCollageConfigPage .lc-preview-btn .material-icons { font-size: 1.15em; }
         </style>
         <div data-role="content">
             <div class="content-primary">
@@ -127,7 +136,7 @@
                             + '<td>' + escapeHtml(lib.Name) + '</td>'
                             + '<td><span class="lc-badge ' + state[1] + '">' + state[0] + '</span></td>'
                             + '<td><input type="checkbox" data-index="' + i + '" data-field="ForceOverwrite"' + (lib.ForceOverwrite ? ' checked' : '') + '></td>'
-                            + '<td class="lc-row-actions"><button is="emby-button" type="button" class="emby-button" data-preview="' + i + '">Preview</button></td>'
+                            + '<td class="lc-row-actions"><button type="button" class="lc-preview-btn" data-preview="' + i + '"><span class="material-icons" aria-hidden="true">visibility</span>Preview</button></td>'
                             + '</tr>';
                     }).join('');
                 }
@@ -195,6 +204,7 @@
                         previewUrl = URL.createObjectURL(blob);
                         img.src = previewUrl;
                         img.style.display = 'block';
+                        img.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                     }).catch(function () {
                         img.style.display = 'none';
                         Dashboard.alert('No preview available. Does the library contain titles with posters?');
