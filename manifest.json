@@ -6,7 +6,7 @@
     "overview": "Poster collage images for your libraries",
     "owner": "digital-workshop",
     "category": "General",
-    "imageUrl": "https://raw.githubusercontent.com/digital-workshop/jellyfin-plugin-library-collage/main/docs/preview.jpg",
+    "imageUrl": "https://raw.githubusercontent.com/digital-workshop/jellyfin-plugin-library-collage/main/docs/real-example.jpg",
     "versions": [
       {
         "version": "1.0.9.0",

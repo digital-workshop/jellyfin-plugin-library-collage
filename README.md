@@ -8,6 +8,10 @@
 
 **Automatic poster-collage cover images for your Jellyfin libraries.**
 
+<img src="docs/real-example.jpg" alt="A generated collage for a Classics library, Label text style" width="100%">
+
+<sub>A real collage generated for a <i>Classics</i> library with the Label text style.</sub>
+
 </div>
 
 Library Collage replaces the plain tiles under **My Media** with a generated cover image. Each cover is a tilted collage of the library's posters, darkened so the library name on top stays readable. It refreshes on a schedule, so your home screen stays up to date as your libraries grow.
