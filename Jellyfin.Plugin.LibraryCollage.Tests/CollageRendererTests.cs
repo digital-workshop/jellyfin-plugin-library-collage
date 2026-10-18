@@ -47,6 +47,15 @@ public sealed class CollageRendererTests : IDisposable
     }
 
     [Fact]
+    public void Render_Banner_ForReadme()
+    {
+        var options = new CollageOptions { Width = 1600, Height = 500, DimPercent = 45 };
+        var jpeg = CollageRenderer.Render(CreatePosters(CollageRenderer.GetCellCount(options)), "Library Collage", options);
+        File.WriteAllBytes(Path.Combine(SamplesDir, "banner.jpg"), jpeg);
+        Assert.NotEmpty(jpeg);
+    }
+
+    [Fact]
     public void Render_WithFewPosters_RepeatsThem()
     {
         var jpeg = CollageRenderer.Render(CreatePosters(4), "Weihnachten", new CollageOptions());
