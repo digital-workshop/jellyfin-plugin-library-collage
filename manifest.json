@@ -10,7 +10,7 @@
     "versions": [
       {
         "version": "1.0.1.0",
-        "changelog": "Fix Linux test run, add README in KefinTweaks style\n\nTests need SkiaSharp's Linux native assets on the CI runner. README now\nhas a banner, table of contents, settings table, style gallery and FAQ.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+        "changelog": "Erste Version: Poster-Collagen für Bibliotheksbilder",
         "targetAbi": "12.2.0.0",
         "sourceUrl": "https://github.com/digital-workshop/jellyfin-plugin-library-collage/releases/download/v1.0.1/library-collage_1.0.1.0.zip",
         "checksum": "12136a5ff437563c906c47c7138f9e2c",

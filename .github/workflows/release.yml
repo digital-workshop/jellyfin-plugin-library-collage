@@ -30,6 +30,8 @@ jobs:
           v="${GITHUB_REF_NAME#v}"
           while [ "$(echo "$v" | tr -cd '.' | wc -c)" -lt 3 ]; do v="$v.0"; done
           echo "VERSION=$v" >> "$GITHUB_ENV"
+          # checkout replaces annotated tags with lightweight ones; fetch the real tag for its message.
+          git fetch --force origin "refs/tags/$GITHUB_REF_NAME:refs/tags/$GITHUB_REF_NAME"
           notes="$(git tag -l --format='%(contents)' "$GITHUB_REF_NAME" | sed '/-----BEGIN PGP/,$d')"
           [ -z "$notes" ] && notes="Release $GITHUB_REF_NAME"
           { echo 'CHANGELOG<<EOF'; echo "$notes"; echo 'EOF'; } >> "$GITHUB_ENV"
