@@ -9,6 +9,14 @@
     "imageUrl": "https://raw.githubusercontent.com/digital-workshop/jellyfin-plugin-library-collage/main/docs/preview.jpg",
     "versions": [
       {
+        "version": "1.0.2.0",
+        "changelog": "Settings page and scheduled task are now in English",
+        "targetAbi": "12.2.0.0",
+        "sourceUrl": "https://github.com/digital-workshop/jellyfin-plugin-library-collage/releases/download/v1.0.2/library-collage_1.0.2.0.zip",
+        "checksum": "13d94d9047123ac8607b0858a0eae899",
+        "timestamp": "2026-10-18T12:09:05Z"
+      },
+      {
         "version": "1.0.1.0",
         "changelog": "Erste Version: Poster-Collagen für Bibliotheksbilder",
         "targetAbi": "12.2.0.0",
