@@ -184,6 +184,7 @@ It contains the betas and every stable release. Betas may contain bugs.
 
 Beta versions are only available through the [beta repository](#development). They may contain bugs.
 
+- **1.0.10.5** (2026-10-19): The *Collage* settings use the same card layout. *Top rated share* is only shown when *Random from top rated* is selected.
 - **1.0.10.4** (2026-10-19): Redesigned *Text* settings with switches, colour fields (hex, `#rrggbbaa` or `rgba(…)`) and a *Box opacity* slider for the Label style.
 - **1.0.10.3** (2026-10-19): The settings page shows the installed plugin version below the buttons.
 - **1.0.10.2** (2026-10-19): New *Text size* slider (50–150 %), a custom *text colour*, and a custom *box colour* for the Label style.
