@@ -30,6 +30,7 @@
             #LibraryCollageConfigPage .lc-preview-btn .material-icons { font-size: 1.15em; }
             #LibraryCollageConfigPage .lc-style { background: rgba(0,0,0,.25); color: inherit; border: 1px solid rgba(255,255,255,.25); border-radius: .4em; padding: .25em .4em; font: inherit; font-size: .9em; }
             #LibraryCollageConfigPage .lc-style option { color: #000; }
+            #LibraryCollageConfigPage .lc-color { width: 3em; height: 2em; padding: 0; border: 1px solid rgba(255,255,255,.3); border-radius: .3em; background: none; cursor: pointer; margin: .3em 0 0 2.4em; }
         </style>
         <div data-role="content">
             <div class="content-primary">
@@ -110,6 +111,26 @@
                             <span>Keep the same font size and wrap long names</span>
                         </label>
                         <div class="fieldDescription">Off: long names shrink to fit on one line.</div>
+                    </div>
+                    <div class="inputContainer">
+                        <label for="lcTextSize">Text size: <span id="lcTextSizeValue"></span> %</label>
+                        <input type="range" id="lcTextSize" class="lc-range" min="50" max="150" step="5">
+                    </div>
+                    <div class="checkboxContainer">
+                        <label class="emby-checkbox-label">
+                            <input is="emby-checkbox" type="checkbox" id="lcCustomTextColor">
+                            <span>Custom text colour</span>
+                        </label>
+                        <input type="color" id="lcTextColor" class="lc-color" value="#ffffff">
+                        <div class="fieldDescription">Off: white, or dark grey for the Label style.</div>
+                    </div>
+                    <div class="checkboxContainer">
+                        <label class="emby-checkbox-label">
+                            <input is="emby-checkbox" type="checkbox" id="lcCustomBoxColor">
+                            <span>Custom box colour (Label style)</span>
+                        </label>
+                        <input type="color" id="lcLabelBoxColor" class="lc-color" value="#ebebf0">
+                        <div class="fieldDescription">The box stays slightly see-through. Off: light grey.</div>
                     </div>
 
                     <div>
@@ -206,6 +227,9 @@
                     config.DrawText = page.querySelector('#lcDrawText').checked;
                     config.TextStyle = page.querySelector('#lcTextStyle').value;
                     config.WrapLongTitles = page.querySelector('#lcWrapLongTitles').checked;
+                    config.TextSizePercent = parseInt(page.querySelector('#lcTextSize').value, 10) || 100;
+                    config.TextColor = page.querySelector('#lcCustomTextColor').checked ? page.querySelector('#lcTextColor').value : '';
+                    config.LabelBoxColor = page.querySelector('#lcCustomBoxColor').checked ? page.querySelector('#lcLabelBoxColor').value : '';
                 }
 
                 function save() {
@@ -230,6 +254,12 @@
                         page.querySelector('#lcDrawText').checked = config.DrawText;
                         page.querySelector('#lcTextStyle').value = config.TextStyle;
                         page.querySelector('#lcWrapLongTitles').checked = config.WrapLongTitles;
+                        page.querySelector('#lcTextSize').value = config.TextSizePercent || 100;
+                        page.querySelector('#lcTextSizeValue').textContent = config.TextSizePercent || 100;
+                        page.querySelector('#lcCustomTextColor').checked = !!config.TextColor;
+                        if (config.TextColor) { page.querySelector('#lcTextColor').value = config.TextColor; }
+                        page.querySelector('#lcCustomBoxColor').checked = !!config.LabelBoxColor;
+                        if (config.LabelBoxColor) { page.querySelector('#lcLabelBoxColor').value = config.LabelBoxColor; }
                         renderLibraries();
                     }).finally(function () {
                         Dashboard.hideLoadingMsg();
@@ -307,6 +337,18 @@
                         });
                     }
                     e.target.value = '__keep';
+                });
+
+                page.querySelector('#lcTextSize').addEventListener('input', function (e) {
+                    page.querySelector('#lcTextSizeValue').textContent = e.target.value;
+                });
+
+                // Picking a colour implies wanting it.
+                page.querySelector('#lcTextColor').addEventListener('input', function () {
+                    page.querySelector('#lcCustomTextColor').checked = true;
+                });
+                page.querySelector('#lcLabelBoxColor').addEventListener('input', function () {
+                    page.querySelector('#lcCustomBoxColor').checked = true;
                 });
 
                 page.querySelector('#lcDimPercent').addEventListener('input', function (e) {

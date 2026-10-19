@@ -13,6 +13,7 @@ using MediaBrowser.Controller.Library;
 using MediaBrowser.Model.Entities;
 using MediaBrowser.Model.IO;
 using Microsoft.Extensions.Logging;
+using SkiaSharp;
 
 namespace Jellyfin.Plugin.LibraryCollage.Services;
 
@@ -290,8 +291,14 @@ public class CollageService
         DimPercent = config.DimPercent,
         DrawText = config.DrawText,
         TextStyle = setting.TextStyle ?? config.TextStyle,
-        WrapLongTitles = config.WrapLongTitles
+        WrapLongTitles = config.WrapLongTitles,
+        TextScale = config.TextSizePercent / 100f,
+        TextColor = ParseColor(config.TextColor),
+        LabelBoxColor = ParseColor(config.LabelBoxColor)
     };
+
+    private static SKColor? ParseColor(string? hex)
+        => !string.IsNullOrWhiteSpace(hex) && SKColor.TryParse(hex, out var color) ? color : null;
 
     private static LibrarySetting GetSetting(PluginConfiguration config, CollectionFolder folder)
     {

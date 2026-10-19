@@ -1,4 +1,5 @@
 using Jellyfin.Plugin.LibraryCollage.Configuration;
+using SkiaSharp;
 
 namespace Jellyfin.Plugin.LibraryCollage.Rendering;
 
@@ -30,6 +31,15 @@ public sealed class CollageOptions
 
     /// <summary>Gets a value indicating whether long titles wrap at a fixed size instead of shrinking.</summary>
     public bool WrapLongTitles { get; init; }
+
+    /// <summary>Gets the text size relative to the style's default, 0.5–1.5.</summary>
+    public float TextScale { get; init; } = 1f;
+
+    /// <summary>Gets the text colour, or <c>null</c> for the style's default.</summary>
+    public SKColor? TextColor { get; init; }
+
+    /// <summary>Gets the colour of the box behind the text in the Label style, or <c>null</c> for light grey.</summary>
+    public SKColor? LabelBoxColor { get; init; }
 
     /// <summary>Gets the JPEG quality, 1–100.</summary>
     public int JpegQuality { get; init; } = 90;

@@ -27,6 +27,15 @@ public class PluginConfiguration : BasePluginConfiguration
     /// <summary>Gets or sets a value indicating whether long titles wrap at one font size instead of shrinking.</summary>
     public bool WrapLongTitles { get; set; }
 
+    /// <summary>Gets or sets the text size in percent of the style's default (50–150).</summary>
+    public int TextSizePercent { get; set; } = 100;
+
+    /// <summary>Gets or sets the text colour as #rrggbb, or empty for the style's default.</summary>
+    public string TextColor { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the Label style's box colour as #rrggbb, or empty for the default.</summary>
+    public string LabelBoxColor { get; set; } = string.Empty;
+
     /// <summary>Gets or sets how items are picked.</summary>
     public SelectionMode SelectionMode { get; set; } = SelectionMode.RandomTopRated;
 

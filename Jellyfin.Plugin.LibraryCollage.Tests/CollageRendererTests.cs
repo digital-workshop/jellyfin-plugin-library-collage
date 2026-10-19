@@ -63,6 +63,25 @@ public sealed class CollageRendererTests : IDisposable
         Assert.NotEmpty(jpeg);
     }
 
+    [Theory]
+    [InlineData(TextStyle.Poster, 0.6f, "#ffd23c", null)]
+    [InlineData(TextStyle.Poster, 1.4f, null, null)]
+    [InlineData(TextStyle.Label, 1f, "#ffffff", "#c0392b")]
+    [InlineData(TextStyle.Classic, 1.2f, "#7fdbff", null)]
+    public void Render_TextSizeAndColours(TextStyle style, float scale, string? textColor, string? boxColor)
+    {
+        var options = new CollageOptions
+        {
+            TextStyle = style,
+            TextScale = scale,
+            TextColor = textColor is null ? null : SKColor.Parse(textColor),
+            LabelBoxColor = boxColor is null ? null : SKColor.Parse(boxColor)
+        };
+        var jpeg = CollageRenderer.Render(CreatePosters(CollageRenderer.GetCellCount(options)), "Horror", options);
+        File.WriteAllBytes(Path.Combine(SamplesDir, $"Colour-{style}-{scale}-{textColor?.TrimStart('#') ?? "default"}.jpg"), jpeg);
+        Assert.NotEmpty(jpeg);
+    }
+
     [Fact]
     public void Render_Banner_ForReadme()
     {
