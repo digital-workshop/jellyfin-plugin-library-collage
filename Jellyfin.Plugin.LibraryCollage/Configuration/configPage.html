@@ -41,7 +41,15 @@
                     </p>
                     <table class="lc-table">
                         <thead>
-                            <tr><th>Enabled</th><th>Library</th><th>Current image</th><th>Overwrite anyway</th><th>Text style</th><th></th></tr>
+                            <tr><th>Enabled</th><th>Library</th><th>Current image</th><th>Overwrite anyway</th><th>Text style<br>
+                                <select id="lcSetAllStyles" class="lc-style" title="Set the text style of all libraries">
+                                    <option value="__keep">Set all…</option>
+                                    <option value="">Default</option>
+                                    <option value="Poster">Poster</option>
+                                    <option value="Classic">Classic</option>
+                                    <option value="Netflix">Netflix</option>
+                                    <option value="Label">Label</option>
+                                </select></th><th></th></tr>
                         </thead>
                         <tbody id="lcLibraries"><tr><td colspan="6">Loading…</td></tr></tbody>
                     </table>
@@ -130,12 +138,24 @@
 
                 var styleNames = [['', 'Default'], ['Poster', 'Poster'], ['Classic', 'Classic'], ['Netflix', 'Netflix'], ['Label', 'Label']];
 
+                // "Default (Classic)" makes it obvious that the global style applies.
+                function defaultStyleLabel() {
+                    return 'Default (' + page.querySelector('#lcTextStyle').value + ')';
+                }
+
                 function styleSelect(index, value) {
                     return '<select class="lc-style" data-index="' + index + '">'
                         + styleNames.map(function (s) {
-                            return '<option value="' + s[0] + '"' + ((value || '') === s[0] ? ' selected' : '') + '>' + s[1] + '</option>';
+                            var label = s[0] === '' ? defaultStyleLabel() : s[1];
+                            return '<option value="' + s[0] + '"' + ((value || '') === s[0] ? ' selected' : '') + '>' + label + '</option>';
                         }).join('')
                         + '</select>';
+                }
+
+                function refreshDefaultStyleLabels() {
+                    page.querySelectorAll('select.lc-style option[value=""]').forEach(function (option) {
+                        option.textContent = defaultStyleLabel();
+                    });
                 }
 
                 function renderLibraries() {
@@ -267,6 +287,18 @@
                 }
 
                 page.addEventListener('pageshow', load);
+
+                page.querySelector('#lcTextStyle').addEventListener('change', refreshDefaultStyleLabels);
+
+                page.querySelector('#lcSetAllStyles').addEventListener('change', function (e) {
+                    var value = e.target.value;
+                    if (value !== '__keep') {
+                        page.querySelectorAll('#lcLibraries select.lc-style').forEach(function (select) {
+                            select.value = value;
+                        });
+                    }
+                    e.target.value = '__keep';
+                });
 
                 page.querySelector('#lcDimPercent').addEventListener('input', function (e) {
                     page.querySelector('#lcDimValue').textContent = e.target.value;

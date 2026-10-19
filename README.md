@@ -69,7 +69,7 @@ All settings are on the plugin's settings page.
 | **Darkening** | 50 % | Strength of the dark overlay. |
 | **Write library name** | On | Turns the text off if your theme already shows the name. |
 | **Default text style** | Poster | *Poster*, *Classic*, *Netflix*, or *Label*. See below. |
-| **Text style** (per library) | Default | Overrides the default text style for one library. |
+| **Text style** (per library) | Default | Overrides the default text style for one library. "Set all…" above the column changes every library at once. |
 
 <hr style="background-color:#b4c5fb; height:2px; border:none;">
 
