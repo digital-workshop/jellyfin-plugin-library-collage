@@ -30,7 +30,31 @@
             #LibraryCollageConfigPage .lc-preview-btn .material-icons { font-size: 1.15em; }
             #LibraryCollageConfigPage .lc-style { background: rgba(0,0,0,.25); color: inherit; border: 1px solid rgba(255,255,255,.25); border-radius: .4em; padding: .25em .4em; font: inherit; font-size: .9em; }
             #LibraryCollageConfigPage .lc-style option { color: #000; }
-            #LibraryCollageConfigPage .lc-color { width: 3em; height: 2em; padding: 0; border: 1px solid rgba(255,255,255,.3); border-radius: .3em; background: none; cursor: pointer; margin: .3em 0 0 2.4em; }
+            #LibraryCollageConfigPage .lc-panel { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: .7em; padding: 0 1.2em; margin: .5em 0 1.8em; }
+            #LibraryCollageConfigPage .lc-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .8em 1.5em; padding: 1em 0; border-top: 1px solid rgba(255,255,255,.07); }
+            #LibraryCollageConfigPage .lc-row:first-child { border-top: none; }
+            #LibraryCollageConfigPage .lc-row-label { flex: 1 1 16em; min-width: 0; }
+            #LibraryCollageConfigPage .lc-row-title { font-weight: 500; }
+            #LibraryCollageConfigPage .lc-hint { font-size: .85em; opacity: .6; margin-top: .25em; }
+            #LibraryCollageConfigPage .lc-tag { font-size: .7em; font-weight: 400; padding: .1em .55em; margin-left: .4em; border-radius: 1em; background: rgba(255,255,255,.1); vertical-align: middle; }
+            #LibraryCollageConfigPage .lc-row-control { display: flex; align-items: center; gap: .6em; }
+            #LibraryCollageConfigPage .lc-row-control input[type=range] { width: 13em; accent-color: #00a4dc; }
+            #LibraryCollageConfigPage .lc-value { min-width: 3.4em; text-align: right; font-variant-numeric: tabular-nums; }
+            #LibraryCollageConfigPage .lc-style-wide { width: auto; min-width: 16em; flex: 0 0 auto; padding: .45em .6em; }
+            #LibraryCollageConfigPage .lc-colorfield input[type=color] { width: 2.4em; height: 2.4em; padding: 0; border: 1px solid rgba(255,255,255,.3); border-radius: .5em; background: none; cursor: pointer; }
+            #LibraryCollageConfigPage .lc-colorfield input[type=color]::-webkit-color-swatch-wrapper { padding: 3px; }
+            #LibraryCollageConfigPage .lc-colorfield input[type=color]::-webkit-color-swatch { border: none; border-radius: .35em; }
+            #LibraryCollageConfigPage .lc-colorfield input[type=color]::-moz-color-swatch { border: none; border-radius: .35em; }
+            #LibraryCollageConfigPage .lc-colorfield.is-default input[type=color] { opacity: .45; }
+            #LibraryCollageConfigPage .lc-colorfield.is-default .lc-reset { visibility: hidden; }
+            #LibraryCollageConfigPage .lc-hex { width: 9em; font-family: monospace; font-size: .95em; background: rgba(0,0,0,.25); color: inherit; border: 1px solid rgba(255,255,255,.25); border-radius: .4em; padding: .5em .6em; }
+            #LibraryCollageConfigPage .lc-switch { position: relative; display: inline-block; width: 2.8em; height: 1.6em; flex: none; cursor: pointer; }
+            #LibraryCollageConfigPage .lc-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+            #LibraryCollageConfigPage .lc-switch span { position: absolute; inset: 0; border-radius: 1em; background: rgba(255,255,255,.2); transition: background .2s; }
+            #LibraryCollageConfigPage .lc-switch span::before { content: ""; position: absolute; width: 1.2em; height: 1.2em; left: .2em; top: .2em; border-radius: 50%; background: #fff; transition: transform .2s; }
+            #LibraryCollageConfigPage .lc-switch input:checked + span { background: #00a4dc; }
+            #LibraryCollageConfigPage .lc-switch input:checked + span::before { transform: translateX(1.2em); }
+            #LibraryCollageConfigPage .lc-switch input:focus-visible + span { outline: 2px solid #00a4dc; outline-offset: 2px; }
         </style>
         <div data-role="content">
             <div class="content-primary">
@@ -90,47 +114,75 @@
                     </div>
 
                     <h2 class="sectionTitle">Text</h2>
-                    <div class="checkboxContainer">
-                        <label class="emby-checkbox-label">
-                            <input is="emby-checkbox" type="checkbox" id="lcDrawText">
-                            <span>Write library name into the image</span>
-                        </label>
-                    </div>
-                    <div class="selectContainer">
-                        <label class="selectLabel" for="lcTextStyle">Default text style</label>
-                        <select is="emby-select" id="lcTextStyle" class="emby-select-withcolor emby-select">
-                            <option value="Poster">Poster (upper case, condensed)</option>
-                            <option value="Classic">Classic (bold, centered)</option>
-                            <option value="Netflix">Netflix (bottom left, with gradient)</option>
-                            <option value="Label">Label (dark text on a light box)</option>
-                        </select>
-                    </div>
-                    <div class="checkboxContainer">
-                        <label class="emby-checkbox-label">
-                            <input is="emby-checkbox" type="checkbox" id="lcWrapLongTitles">
-                            <span>Keep the same font size and wrap long names</span>
-                        </label>
-                        <div class="fieldDescription">Off: long names shrink to fit on one line.</div>
-                    </div>
-                    <div class="inputContainer">
-                        <label for="lcTextSize">Text size: <span id="lcTextSizeValue"></span> %</label>
-                        <input type="range" id="lcTextSize" class="lc-range" min="50" max="150" step="5">
-                    </div>
-                    <div class="checkboxContainer">
-                        <label class="emby-checkbox-label">
-                            <input is="emby-checkbox" type="checkbox" id="lcCustomTextColor">
-                            <span>Custom text colour</span>
-                        </label>
-                        <input type="color" id="lcTextColor" class="lc-color" value="#ffffff">
-                        <div class="fieldDescription">Off: white, or dark grey for the Label style.</div>
-                    </div>
-                    <div class="checkboxContainer">
-                        <label class="emby-checkbox-label">
-                            <input is="emby-checkbox" type="checkbox" id="lcCustomBoxColor">
-                            <span>Custom box colour (Label style)</span>
-                        </label>
-                        <input type="color" id="lcLabelBoxColor" class="lc-color" value="#ebebf0">
-                        <div class="fieldDescription">The box stays slightly see-through. Off: light grey.</div>
+                    <div class="lc-panel">
+                        <div class="lc-row">
+                            <div class="lc-row-label">
+                                <div class="lc-row-title">Write library name into the image</div>
+                                <div class="lc-hint">Turn off if your theme already shows the name.</div>
+                            </div>
+                            <label class="lc-switch"><input type="checkbox" id="lcDrawText"><span></span></label>
+                        </div>
+                        <div class="lc-row">
+                            <div class="lc-row-label">
+                                <div class="lc-row-title">Default text style</div>
+                                <div class="lc-hint">Used by every library set to "Default".</div>
+                            </div>
+                            <select id="lcTextStyle" class="lc-style lc-style-wide">
+                                <option value="Poster">Poster (upper case, condensed)</option>
+                                <option value="Classic">Classic (bold, centered)</option>
+                                <option value="Netflix">Netflix (bottom left, with gradient)</option>
+                                <option value="Label">Label (dark text on a light box)</option>
+                            </select>
+                        </div>
+                        <div class="lc-row">
+                            <div class="lc-row-label">
+                                <div class="lc-row-title">Same font size for all libraries</div>
+                                <div class="lc-hint">Long names wrap onto more lines. Off: they shrink to fit on one line.</div>
+                            </div>
+                            <label class="lc-switch"><input type="checkbox" id="lcWrapLongTitles"><span></span></label>
+                        </div>
+                        <div class="lc-row">
+                            <div class="lc-row-label">
+                                <div class="lc-row-title">Text size</div>
+                                <div class="lc-hint">Relative to the style's normal size.</div>
+                            </div>
+                            <div class="lc-row-control">
+                                <input type="range" id="lcTextSize" min="50" max="150" step="5">
+                                <span class="lc-value"><span id="lcTextSizeValue"></span> %</span>
+                            </div>
+                        </div>
+                        <div class="lc-row">
+                            <div class="lc-row-label">
+                                <div class="lc-row-title">Text colour</div>
+                                <div class="lc-hint">Default: white, or dark grey for the Label style.</div>
+                            </div>
+                            <div class="lc-row-control lc-colorfield" id="lcTextColorField" data-default="#ffffff">
+                                <input type="color" aria-label="Text colour">
+                                <input type="text" class="lc-hex" placeholder="Default" spellcheck="false" aria-label="Text colour as hex">
+                                <button type="button" class="lc-preview-btn lc-reset">Reset</button>
+                            </div>
+                        </div>
+                        <div class="lc-row">
+                            <div class="lc-row-label">
+                                <div class="lc-row-title">Box colour <span class="lc-tag">Label style</span></div>
+                                <div class="lc-hint">Hex, #rrggbbaa or rgba(…). Default: light grey.</div>
+                            </div>
+                            <div class="lc-row-control lc-colorfield" id="lcBoxColorField" data-default="#ebebf0" data-alpha="true">
+                                <input type="color" aria-label="Box colour">
+                                <input type="text" class="lc-hex" placeholder="Default" spellcheck="false" aria-label="Box colour as hex or rgba">
+                                <button type="button" class="lc-preview-btn lc-reset">Reset</button>
+                            </div>
+                        </div>
+                        <div class="lc-row">
+                            <div class="lc-row-label">
+                                <div class="lc-row-title">Box opacity <span class="lc-tag">Label style</span></div>
+                                <div class="lc-hint">0 % is invisible, 100 % is solid.</div>
+                            </div>
+                            <div class="lc-row-control">
+                                <input type="range" id="lcBoxOpacity" min="0" max="100" step="5">
+                                <span class="lc-value"><span id="lcBoxOpacityValue"></span> %</span>
+                            </div>
+                        </div>
                     </div>
 
                     <div>
@@ -187,6 +239,49 @@
                     });
                 }
 
+                // A colour field holds '' (style default) or '#rrggbb' in data-value.
+                function setColor(field, value) {
+                    field.setAttribute('data-value', value);
+                    field.querySelector('input[type=color]').value = value || field.getAttribute('data-default');
+                    field.querySelector('.lc-hex').value = value;
+                    field.classList.toggle('is-default', !value);
+                }
+
+                function getColor(selector) {
+                    return page.querySelector(selector).getAttribute('data-value') || '';
+                }
+
+                function setOpacity(percent) {
+                    page.querySelector('#lcBoxOpacity').value = percent;
+                    page.querySelector('#lcBoxOpacityValue').textContent = percent;
+                }
+
+                // Accepts #rgb, #rrggbb, #rrggbbaa and rgb()/rgba(); returns { hex: '#rrggbb', alpha: 0–1 or null }.
+                function parseColor(input) {
+                    var s = input.trim().toLowerCase();
+                    var m = s.match(/^#?([0-9a-f]{3})$/);
+                    if (m) {
+                        return { hex: '#' + m[1].split('').map(function (c) { return c + c; }).join(''), alpha: null };
+                    }
+                    m = s.match(/^#?([0-9a-f]{6})([0-9a-f]{2})?$/);
+                    if (m) {
+                        return { hex: '#' + m[1], alpha: m[2] ? parseInt(m[2], 16) / 255 : null };
+                    }
+                    m = s.match(/^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*(?:,\s*([\d.]+%?)\s*)?\)$/);
+                    if (m) {
+                        var hex = '#' + [m[1], m[2], m[3]].map(function (v) {
+                            return ('0' + Math.min(255, parseInt(v, 10)).toString(16)).slice(-2);
+                        }).join('');
+                        var alpha = null;
+                        if (m[4] !== undefined) {
+                            alpha = m[4].slice(-1) === '%' ? parseFloat(m[4]) / 100 : parseFloat(m[4]);
+                            alpha = Math.max(0, Math.min(1, alpha));
+                        }
+                        return { hex: hex, alpha: alpha };
+                    }
+                    return null;
+                }
+
                 function renderLibraries() {
                     var body = page.querySelector('#lcLibraries');
                     if (!libraries.length) {
@@ -229,8 +324,9 @@
                     config.TextStyle = page.querySelector('#lcTextStyle').value;
                     config.WrapLongTitles = page.querySelector('#lcWrapLongTitles').checked;
                     config.TextSizePercent = parseInt(page.querySelector('#lcTextSize').value, 10) || 100;
-                    config.TextColor = page.querySelector('#lcCustomTextColor').checked ? page.querySelector('#lcTextColor').value : '';
-                    config.LabelBoxColor = page.querySelector('#lcCustomBoxColor').checked ? page.querySelector('#lcLabelBoxColor').value : '';
+                    config.TextColor = getColor('#lcTextColorField');
+                    config.LabelBoxColor = getColor('#lcBoxColorField');
+                    config.LabelBoxOpacity = parseInt(page.querySelector('#lcBoxOpacity').value, 10);
                 }
 
                 function save() {
@@ -257,10 +353,9 @@
                         page.querySelector('#lcWrapLongTitles').checked = config.WrapLongTitles;
                         page.querySelector('#lcTextSize').value = config.TextSizePercent || 100;
                         page.querySelector('#lcTextSizeValue').textContent = config.TextSizePercent || 100;
-                        page.querySelector('#lcCustomTextColor').checked = !!config.TextColor;
-                        if (config.TextColor) { page.querySelector('#lcTextColor').value = config.TextColor; }
-                        page.querySelector('#lcCustomBoxColor').checked = !!config.LabelBoxColor;
-                        if (config.LabelBoxColor) { page.querySelector('#lcLabelBoxColor').value = config.LabelBoxColor; }
+                        setColor(page.querySelector('#lcTextColorField'), config.TextColor || '');
+                        setColor(page.querySelector('#lcBoxColorField'), config.LabelBoxColor || '');
+                        setOpacity(config.LabelBoxOpacity === undefined ? 80 : config.LabelBoxOpacity);
                         renderLibraries();
                     }).finally(function () {
                         Dashboard.hideLoadingMsg();
@@ -352,12 +447,34 @@
                     page.querySelector('#lcTextSizeValue').textContent = e.target.value;
                 });
 
-                // Picking a colour implies wanting it.
-                page.querySelector('#lcTextColor').addEventListener('input', function () {
-                    page.querySelector('#lcCustomTextColor').checked = true;
+                page.querySelector('#lcBoxOpacity').addEventListener('input', function (e) {
+                    page.querySelector('#lcBoxOpacityValue').textContent = e.target.value;
                 });
-                page.querySelector('#lcLabelBoxColor').addEventListener('input', function () {
-                    page.querySelector('#lcCustomBoxColor').checked = true;
+
+                ['#lcTextColorField', '#lcBoxColorField'].forEach(function (selector) {
+                    var field = page.querySelector(selector);
+                    var picker = field.querySelector('input[type=color]');
+                    var hex = field.querySelector('.lc-hex');
+
+                    picker.addEventListener('input', function () {
+                        setColor(field, picker.value);
+                    });
+                    hex.addEventListener('change', function () {
+                        var parsed = parseColor(hex.value);
+                        if (!hex.value.trim()) {
+                            setColor(field, '');
+                        } else if (parsed) {
+                            setColor(field, parsed.hex);
+                            if (parsed.alpha !== null && field.hasAttribute('data-alpha')) {
+                                setOpacity(Math.round(parsed.alpha * 100));
+                            }
+                        } else {
+                            setColor(field, field.getAttribute('data-value') || '');
+                        }
+                    });
+                    field.querySelector('.lc-reset').addEventListener('click', function () {
+                        setColor(field, '');
+                    });
                 });
 
                 page.querySelector('#lcDimPercent').addEventListener('input', function (e) {

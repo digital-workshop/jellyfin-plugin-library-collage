@@ -294,7 +294,8 @@ public class CollageService
         WrapLongTitles = config.WrapLongTitles,
         TextScale = config.TextSizePercent / 100f,
         TextColor = ParseColor(config.TextColor),
-        LabelBoxColor = ParseColor(config.LabelBoxColor)
+        LabelBoxColor = ParseColor(config.LabelBoxColor),
+        LabelBoxOpacity = config.LabelBoxOpacity
     };
 
     private static SKColor? ParseColor(string? hex)

@@ -67,6 +67,7 @@ public sealed class CollageRendererTests : IDisposable
     [InlineData(TextStyle.Poster, 0.6f, "#ffd23c", null)]
     [InlineData(TextStyle.Poster, 1.4f, null, null)]
     [InlineData(TextStyle.Label, 1f, "#ffffff", "#c0392b")]
+    [InlineData(TextStyle.Label, 1f, null, "#000000")]
     [InlineData(TextStyle.Classic, 1.2f, "#7fdbff", null)]
     public void Render_TextSizeAndColours(TextStyle style, float scale, string? textColor, string? boxColor)
     {

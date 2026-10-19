@@ -41,6 +41,9 @@ public sealed class CollageOptions
     /// <summary>Gets the colour of the box behind the text in the Label style, or <c>null</c> for light grey.</summary>
     public SKColor? LabelBoxColor { get; init; }
 
+    /// <summary>Gets the opacity of the Label style's box, 0–100.</summary>
+    public int LabelBoxOpacity { get; init; } = 80;
+
     /// <summary>Gets the JPEG quality, 1–100.</summary>
     public int JpegQuality { get; init; } = 90;
 }

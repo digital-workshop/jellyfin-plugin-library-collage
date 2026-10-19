@@ -325,7 +325,7 @@ public static class CollageRenderer
 
         if (options.TextStyle == TextStyle.Label)
         {
-            DrawLabelBox(canvas, font, lines, w / 2f, h / 2f, blockHeight, capHeight, options.LabelBoxColor ?? new SKColor(235, 235, 240));
+            DrawLabelBox(canvas, font, lines, w / 2f, h / 2f, blockHeight, capHeight, (options.LabelBoxColor ?? new SKColor(235, 235, 240)).WithAlpha((byte)Math.Round(Math.Clamp(options.LabelBoxOpacity, 0, 100) * 2.55)));
             paint.Color = options.TextColor ?? new SKColor(24, 24, 28);
             paint.ImageFilter = null;
         }
@@ -351,13 +351,13 @@ public static class CollageRenderer
 
         using var shadow = new SKPaint
         {
-            Color = SKColors.Black.WithAlpha(110),
+            Color = SKColors.Black.WithAlpha((byte)(110 * boxColor.Alpha / 255)),
             IsAntialias = true,
             MaskFilter = SKMaskFilter.CreateBlur(SKBlurStyle.Normal, capHeight * 0.08f)
         };
         canvas.DrawRoundRect(box.Left, box.Top + (capHeight * 0.03f), box.Width, box.Height, radius, radius, shadow);
 
-        using var fill = new SKPaint { Color = boxColor.WithAlpha(205), IsAntialias = true };
+        using var fill = new SKPaint { Color = boxColor, IsAntialias = true };
         canvas.DrawRoundRect(box, radius, radius, fill);
     }
 

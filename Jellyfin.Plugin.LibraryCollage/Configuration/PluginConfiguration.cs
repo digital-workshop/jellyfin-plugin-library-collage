@@ -36,6 +36,9 @@ public class PluginConfiguration : BasePluginConfiguration
     /// <summary>Gets or sets the Label style's box colour as #rrggbb, or empty for the default.</summary>
     public string LabelBoxColor { get; set; } = string.Empty;
 
+    /// <summary>Gets or sets the Label style's box opacity in percent (0–100).</summary>
+    public int LabelBoxOpacity { get; set; } = 80;
+
     /// <summary>Gets or sets how items are picked.</summary>
     public SelectionMode SelectionMode { get; set; } = SelectionMode.RandomTopRated;
 
