@@ -27,6 +27,7 @@ Requires **Jellyfin 12.2**.
 - [Uninstallation](#uninstallation)
 - [FAQ](#faq)
 - [Development](#development)
+- [AI Disclaimer](#ai-disclaimer)
 - [License & Acknowledgments](#license--acknowledgments)
 
 <hr style="background-color:#b4c5fb; height:2px; border:none;">
@@ -162,6 +163,24 @@ dotnet test
 The tests render sample images into `samples/`.
 
 **Releasing:** Push a tag such as `v1.0.1`. The *Release* workflow runs the tests, builds the plugin, publishes a GitHub release with the zip, and adds the version to `manifest.json`. An annotated tag's message becomes the changelog.
+
+<hr style="background-color:#b4c5fb; height:2px; border:none;">
+
+## AI Disclaimer
+
+I want to be upfront about how this plugin was made, because I know the use of AI in software is a hot topic and everyone has their own feelings about it.
+
+Library Collage was built almost entirely with AI. The code, the tests, the build and release workflows and most of this README were written by [Claude Code](https://claude.com/claude-code) (Anthropic). My role was closer to a project manager than a developer:
+
+- **Design:** Before any code was written, I worked through every decision in detail. That covered which libraries get a collage, the layouts and text styles, how posters are picked, how hand-made images stay protected, and what the settings page offers.
+- **Testing:** I tested every release on my own Jellyfin 12.2 server, reported what didn't work, and kept going until I was happy with the result. Some of the trickier problems only showed up this way. For example, Jellyfin's built-in image generator was silently replacing the collages during library scans.
+- **Quality checks:** The rendering code is covered by automated tests that run on every build.
+
+I think a project like this suits the approach well. It's small, self-contained and easy to verify, because you can see right away whether a collage looks right. I also know the limits of building software this way, so if you run into a bug, please open an issue. I'd rather hear about it than have it go unnoticed.
+
+**The plugin itself does not use AI.** Collages are rendered locally on your server with SkiaSharp, the same graphics library Jellyfin uses. Nothing is sent to an external service, and no artwork is generated: the images are made only from your own posters.
+
+My personal view is that AI should be used responsibly as a tool, like any other tool. It shouldn't replace the artists whose posters make these collages look good in the first place.
 
 <hr style="background-color:#b4c5fb; height:2px; border:none;">
 
