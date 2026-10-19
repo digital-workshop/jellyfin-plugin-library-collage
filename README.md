@@ -184,6 +184,7 @@ It contains the betas and every stable release. Betas may contain bugs.
 
 Beta versions are only available through the [beta repository](#development). They may contain bugs.
 
+- **1.0.10.3** (2026-10-19): The settings page shows the installed plugin version below the buttons.
 - **1.0.10.2** (2026-10-19): New *Text size* slider (50–150 %), a custom *text colour*, and a custom *box colour* for the Label style.
 - **1.0.10.1** (2026-10-19): New option *Keep the same font size and wrap long names*. Long library names wrap onto more lines instead of shrinking, so every tile uses the same font size ([#1](https://github.com/digital-workshop/jellyfin-plugin-library-collage/issues/1)).
 
