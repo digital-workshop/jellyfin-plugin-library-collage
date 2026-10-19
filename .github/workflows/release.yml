@@ -1,5 +1,8 @@
-# Push a tag like v1.0.0 to build the plugin, publish a GitHub release
-# and add the version to manifest.json on main.
+# Push a tag to build the plugin, publish a GitHub release and update the manifests on main.
+#   v1.0.11    stable: release, added to manifest.json and manifest-beta.json
+#   v1.0.10.1  beta (4th number not 0): pre-release, added to manifest-beta.json only
+# Betas use the last stable version plus a build number, so the next stable release
+# (1.0.11.0) is higher than every beta before it and testers move back to stable automatically.
 name: Release
 
 on:
@@ -30,6 +33,7 @@ jobs:
           v="${GITHUB_REF_NAME#v}"
           while [ "$(echo "$v" | tr -cd '.' | wc -c)" -lt 3 ]; do v="$v.0"; done
           echo "VERSION=$v" >> "$GITHUB_ENV"
+          if [ "${v##*.}" = "0" ]; then echo "CHANNEL=stable" >> "$GITHUB_ENV"; else echo "CHANNEL=beta" >> "$GITHUB_ENV"; fi
           # checkout replaces annotated tags with lightweight ones; fetch the real tag for its message.
           git fetch --force origin "refs/tags/$GITHUB_REF_NAME:refs/tags/$GITHUB_REF_NAME"
           notes="$(git tag -l --format='%(contents)' "$GITHUB_REF_NAME" | sed '/-----BEGIN PGP/,$d')"
@@ -49,19 +53,27 @@ jobs:
       - name: Create release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" "library-collage_$VERSION.zip" --title "$GITHUB_REF_NAME" --notes "$CHANGELOG"
+        run: |
+          prerelease=""
+          [ "$CHANNEL" = "beta" ] && prerelease="--prerelease"
+          gh release create "$GITHUB_REF_NAME" "library-collage_$VERSION.zip" --title "$GITHUB_REF_NAME" --notes "$CHANGELOG" $prerelease
 
-      - name: Update manifest
+      - name: Update manifests
         run: |
           git fetch origin main
           git checkout main
           url="https://github.com/${GITHUB_REPOSITORY}/releases/download/${GITHUB_REF_NAME}/library-collage_${VERSION}.zip"
-          jq --arg v "$VERSION" --arg cl "$CHANGELOG" --arg abi "$TARGET_ABI" --arg url "$url" \
-             --arg cs "$CHECKSUM" --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-             '.[0].versions = ([{version: $v, changelog: $cl, targetAbi: $abi, sourceUrl: $url, checksum: $cs, timestamp: $ts}]
-                               + (.[0].versions | map(select(.version != $v))))' \
-             manifest.json > manifest.tmp && mv manifest.tmp manifest.json
+          ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          add_version() {
+            jq --arg v "$VERSION" --arg cl "$CHANGELOG" --arg abi "$TARGET_ABI" --arg url "$url" \
+               --arg cs "$CHECKSUM" --arg ts "$ts" \
+               '.[0].versions = ([{version: $v, changelog: $cl, targetAbi: $abi, sourceUrl: $url, checksum: $cs, timestamp: $ts}]
+                                 + (.[0].versions | map(select(.version != $v))))' \
+               "$1" > manifest.tmp && mv manifest.tmp "$1"
+          }
+          add_version manifest-beta.json
+          [ "$CHANNEL" = "stable" ] && add_version manifest.json
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -am "Manifest: $VERSION"
+          git commit -am "Manifest: $VERSION ($CHANNEL)"
           git push origin main

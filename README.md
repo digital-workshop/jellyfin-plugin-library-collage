@@ -162,7 +162,18 @@ dotnet test
 
 The tests render sample images into `samples/`.
 
-**Releasing:** Push a tag such as `v1.0.1`. The *Release* workflow runs the tests, builds the plugin, publishes a GitHub release with the zip, and adds the version to `manifest.json`. An annotated tag's message becomes the changelog.
+**Releasing:** New features are built on the `dev` branch. Pushing a tag runs the *Release* workflow. It tests and builds the plugin, publishes a GitHub release with the zip, and updates the manifests. An annotated tag's message becomes the changelog.
+
+- A tag with three numbers, such as `v1.0.11`, makes a **stable release**. It goes into `manifest.json`.
+- A tag with a fourth number, such as `v1.0.10.1`, makes a **beta**. It is published as a pre-release and goes into `manifest-beta.json` only.
+
+**Beta testing:** To try new features early, use this repository URL instead of the regular one:
+
+```
+https://raw.githubusercontent.com/digital-workshop/jellyfin-plugin-library-collage/main/manifest-beta.json
+```
+
+It contains the betas and every stable release. Betas may contain bugs.
 
 <hr style="background-color:#b4c5fb; height:2px; border:none;">
 

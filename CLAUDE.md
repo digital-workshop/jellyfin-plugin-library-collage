@@ -16,15 +16,17 @@ On this machine `dotnet` may not be on the Bash PATH. Prefix with `export PATH="
 
 To look at rendering changes, run the tests and open the images in `samples/`. Images under `docs/` are used by the README and copied in by hand from `samples/`.
 
-## Releasing
+## Branches and releasing
 
-Push an annotated tag such as `v1.0.10`. `.github/workflows/release.yml` then:
-- runs the tests and builds the plugin;
-- zips only the plugin DLL and creates a GitHub release;
-- prepends the version to `manifest.json` and pushes that commit to `main` as github-actions.
+New work goes on `dev`; `main` is what stable users get. The workflow (`.github/workflows/release.yml`) runs on annotated tags. It tests, builds, zips only the plugin DLL, creates a GitHub release and prepends the version to the manifests on `main`:
+
+- **Beta:** tag `vX.Y.Z.N` with N ≠ 0 on `dev`, e.g. `v1.0.10.1` (the last stable version plus a build number). This creates a pre-release and updates `manifest-beta.json` only. Testers add `.../main/manifest-beta.json` as a repository in Jellyfin.
+- **Stable:** merge `dev` into `main`, then tag `vX.Y.Z` there. This updates `manifest.json` and `manifest-beta.json`. Its version (`X.Y.Z.0`) is higher than every beta before it, so testers move back to stable automatically.
+
+Jellyfin only accepts four numeric version parts, so suffixes like `-beta` are not possible.
 
 Two things follow from this:
-- Always `git pull --rebase origin main` before pushing after a release, because the bot commits to `main`.
+- The bot commits to `main` after every release, so `git pull --rebase origin main` before pushing to `main`.
 - The annotated tag's message becomes the changelog in the Jellyfin catalog.
 
 `TARGET_ABI` in the workflow must match the Jellyfin server version.

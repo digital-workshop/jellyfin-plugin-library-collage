@@ -1,0 +1,93 @@
+[
+  {
+    "guid": "0f93e2db-b456-4e09-a09a-76154a40aed6",
+    "name": "Library Collage",
+    "description": "Automatically generates library cover images: a tilted collage of posters, darkened, with the library name on top.",
+    "overview": "Poster collage images for your libraries",
+    "owner": "digital-workshop",
+    "category": "General",
+    "imageUrl": "https://raw.githubusercontent.com/digital-workshop/jellyfin-plugin-library-collage/main/docs/real-example.jpg",
+    "versions": [
+      {
+        "version": "1.0.10.0",
+        "changelog": "Set the text style of all libraries at once; Default now shows which style it uses (#2)",
+        "targetAbi": "12.2.0.0",
+        "sourceUrl": "https://github.com/digital-workshop/jellyfin-plugin-library-collage/releases/download/v1.0.10/library-collage_1.0.10.0.zip",
+        "checksum": "43c52afefbe331c5dabf21d34a97ac71",
+        "timestamp": "2026-10-19T17:55:57Z"
+      },
+      {
+        "version": "1.0.9.0",
+        "changelog": "Dashboard > Libraries shows the new collage without a restart",
+        "targetAbi": "12.2.0.0",
+        "sourceUrl": "https://github.com/digital-workshop/jellyfin-plugin-library-collage/releases/download/v1.0.9/library-collage_1.0.9.0.zip",
+        "checksum": "d063573c304d8844e2a3113a08c653b3",
+        "timestamp": "2026-10-18T15:18:34Z"
+      },
+      {
+        "version": "1.0.8.0",
+        "changelog": "Text style can be chosen per library",
+        "targetAbi": "12.2.0.0",
+        "sourceUrl": "https://github.com/digital-workshop/jellyfin-plugin-library-collage/releases/download/v1.0.8/library-collage_1.0.8.0.zip",
+        "checksum": "22a987e72f6d414c33e5e8a887d70896",
+        "timestamp": "2026-10-18T15:13:09Z"
+      },
+      {
+        "version": "1.0.7.0",
+        "changelog": "New text style: Label (dark text on a light box)",
+        "targetAbi": "12.2.0.0",
+        "sourceUrl": "https://github.com/digital-workshop/jellyfin-plugin-library-collage/releases/download/v1.0.7/library-collage_1.0.7.0.zip",
+        "checksum": "487a20fbf7ebf4222dd6de89319aa747",
+        "timestamp": "2026-10-18T15:11:24Z"
+      },
+      {
+        "version": "1.0.6.0",
+        "changelog": "Collages are no longer replaced by Jellyfin's own library images during scans",
+        "targetAbi": "12.2.0.0",
+        "sourceUrl": "https://github.com/digital-workshop/jellyfin-plugin-library-collage/releases/download/v1.0.6/library-collage_1.0.6.0.zip",
+        "checksum": "6598bc1b0b745f8c33458c29630671af",
+        "timestamp": "2026-10-18T15:09:17Z"
+      },
+      {
+        "version": "1.0.5.0",
+        "changelog": "Generate button per library",
+        "targetAbi": "12.2.0.0",
+        "sourceUrl": "https://github.com/digital-workshop/jellyfin-plugin-library-collage/releases/download/v1.0.5/library-collage_1.0.5.0.zip",
+        "checksum": "cbf60db1d8cc9ae5661b8d60fa36a0f3",
+        "timestamp": "2026-10-18T15:01:54Z"
+      },
+      {
+        "version": "1.0.4.0",
+        "changelog": "Settings page in the dashboard sidebar",
+        "targetAbi": "12.2.0.0",
+        "sourceUrl": "https://github.com/digital-workshop/jellyfin-plugin-library-collage/releases/download/v1.0.4/library-collage_1.0.4.0.zip",
+        "checksum": "b03714092a0e60b591e2e2d93ef6efe8",
+        "timestamp": "2026-10-18T12:11:34Z"
+      },
+      {
+        "version": "1.0.3.0",
+        "changelog": "Readable preview buttons on the settings page",
+        "targetAbi": "12.2.0.0",
+        "sourceUrl": "https://github.com/digital-workshop/jellyfin-plugin-library-collage/releases/download/v1.0.3/library-collage_1.0.3.0.zip",
+        "checksum": "42d1b66eebaffb37b30466920ecf38fe",
+        "timestamp": "2026-10-18T12:10:26Z"
+      },
+      {
+        "version": "1.0.2.0",
+        "changelog": "Settings page and scheduled task are now in English",
+        "targetAbi": "12.2.0.0",
+        "sourceUrl": "https://github.com/digital-workshop/jellyfin-plugin-library-collage/releases/download/v1.0.2/library-collage_1.0.2.0.zip",
+        "checksum": "13d94d9047123ac8607b0858a0eae899",
+        "timestamp": "2026-10-18T12:09:05Z"
+      },
+      {
+        "version": "1.0.1.0",
+        "changelog": "Erste Version: Poster-Collagen für Bibliotheksbilder",
+        "targetAbi": "12.2.0.0",
+        "sourceUrl": "https://github.com/digital-workshop/jellyfin-plugin-library-collage/releases/download/v1.0.1/library-collage_1.0.1.0.zip",
+        "checksum": "12136a5ff437563c906c47c7138f9e2c",
+        "timestamp": "2026-10-18T12:01:37Z"
+      }
+    ]
+  }
+]
