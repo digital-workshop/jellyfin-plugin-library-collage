@@ -180,18 +180,6 @@ It contains the betas and every stable release. Betas may contain bugs.
 
 ## Changelog
 
-### Beta
-
-Beta versions are only available through the [beta repository](#development). They may contain bugs.
-
-- **1.0.10.5** (2026-10-19): The *Collage* settings use the same card layout. *Top rated share* is only shown when *Random from top rated* is selected.
-- **1.0.10.4** (2026-10-19): Redesigned *Text* settings with switches, colour fields (hex, `#rrggbbaa` or `rgba(…)`) and a *Box opacity* slider for the Label style.
-- **1.0.10.3** (2026-10-19): The settings page shows the installed plugin version below the buttons.
-- **1.0.10.2** (2026-10-19): New *Text size* slider (50–150 %), a custom *text colour*, and a custom *box colour* for the Label style.
-- **1.0.10.1** (2026-10-19): New option *Keep the same font size and wrap long names*. Long library names wrap onto more lines instead of shrinking, so every tile uses the same font size ([#1](https://github.com/digital-workshop/jellyfin-plugin-library-collage/issues/1)).
-
-### Stable
-
 - **1.0.10** (2026-10-19): A *Set all…* dropdown above the *Text style* column changes the style of every library at once. The per-library *Default* option now shows which style it uses, e.g. "Default (Classic)" ([#2](https://github.com/digital-workshop/jellyfin-plugin-library-collage/issues/2)).
 - **1.0.9** (2026-10-18): *Dashboard → Libraries* shows a new collage without restarting Jellyfin.
 - **1.0.8** (2026-10-18): You can choose the text style per library.
