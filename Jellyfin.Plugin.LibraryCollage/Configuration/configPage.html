@@ -104,6 +104,13 @@
                             <option value="Label">Label (dark text on a light box)</option>
                         </select>
                     </div>
+                    <div class="checkboxContainer">
+                        <label class="emby-checkbox-label">
+                            <input is="emby-checkbox" type="checkbox" id="lcWrapLongTitles">
+                            <span>Keep the same font size and wrap long names</span>
+                        </label>
+                        <div class="fieldDescription">Off: long names shrink to fit on one line.</div>
+                    </div>
 
                     <div>
                         <button is="emby-button" type="submit" class="raised button-submit block emby-button">
@@ -198,6 +205,7 @@
                     config.DimPercent = parseInt(page.querySelector('#lcDimPercent').value, 10);
                     config.DrawText = page.querySelector('#lcDrawText').checked;
                     config.TextStyle = page.querySelector('#lcTextStyle').value;
+                    config.WrapLongTitles = page.querySelector('#lcWrapLongTitles').checked;
                 }
 
                 function save() {
@@ -221,6 +229,7 @@
                         page.querySelector('#lcDimValue').textContent = config.DimPercent;
                         page.querySelector('#lcDrawText').checked = config.DrawText;
                         page.querySelector('#lcTextStyle').value = config.TextStyle;
+                        page.querySelector('#lcWrapLongTitles').checked = config.WrapLongTitles;
                         renderLibraries();
                     }).finally(function () {
                         Dashboard.hideLoadingMsg();

@@ -289,7 +289,8 @@ public class CollageService
         Layout = config.Layout,
         DimPercent = config.DimPercent,
         DrawText = config.DrawText,
-        TextStyle = setting.TextStyle ?? config.TextStyle
+        TextStyle = setting.TextStyle ?? config.TextStyle,
+        WrapLongTitles = config.WrapLongTitles
     };
 
     private static LibrarySetting GetSetting(PluginConfiguration config, CollectionFolder folder)

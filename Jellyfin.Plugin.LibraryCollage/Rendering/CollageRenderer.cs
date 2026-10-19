@@ -291,7 +291,9 @@ public static class CollageRenderer
         };
 
         using var font = new SKFont(typeface, targetSize) { Edging = SKFontEdging.Antialias, Subpixel = true };
-        var lines = FitLines(font, text, targetSize, maxWidth);
+        var lines = options.WrapLongTitles
+            ? WrapLines(font, text, targetSize * 0.8f, maxWidth, options.TextStyle == TextStyle.Netflix ? h * 0.5f : h * 0.75f)
+            : FitLines(font, text, targetSize, maxWidth);
 
         using var paint = new SKPaint
         {
@@ -378,6 +380,51 @@ public static class CollageRenderer
         }
 
         font.Size = size;
+        return lines;
+    }
+
+    /// <summary>
+    /// Keeps one font size for every title and wraps onto more lines instead.
+    /// Only shrinks when a single word is wider than a line or the lines don't fit in height.
+    /// </summary>
+    private static List<string> WrapLines(SKFont font, string text, float size, float maxWidth, float maxHeight)
+    {
+        var words = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var lines = new List<string> { text };
+
+        for (var attempt = 0; attempt < 20; attempt++)
+        {
+            font.Size = size;
+            lines = new List<string>();
+            var current = string.Empty;
+            foreach (var word in words)
+            {
+                var candidate = current.Length == 0 ? word : current + " " + word;
+                if (current.Length > 0 && font.MeasureText(candidate) > maxWidth)
+                {
+                    lines.Add(current);
+                    current = word;
+                }
+                else
+                {
+                    current = candidate;
+                }
+            }
+
+            lines.Add(current);
+
+            var widest = lines.Max(l => font.MeasureText(l));
+            var capHeight = font.Metrics.CapHeight > 0 ? font.Metrics.CapHeight : -font.Metrics.Ascent * 0.7f;
+            var blockHeight = capHeight + (capHeight * 1.35f * (lines.Count - 1));
+            var scale = Math.Min(maxWidth / widest, maxHeight / blockHeight);
+            if (scale >= 1f)
+            {
+                break;
+            }
+
+            size *= Math.Max(scale, 0.5f) * 0.98f;
+        }
+
         return lines;
     }
 

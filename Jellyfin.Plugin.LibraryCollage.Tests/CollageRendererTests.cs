@@ -48,6 +48,21 @@ public sealed class CollageRendererTests : IDisposable
         Assert.InRange(count, min, max);
     }
 
+    [Theory]
+    [InlineData(TextStyle.Label, "Comedy")]
+    [InlineData(TextStyle.Label, "Documentaries Movies")]
+    [InlineData(TextStyle.Poster, "Comedy")]
+    [InlineData(TextStyle.Poster, "Documentaries Movies")]
+    [InlineData(TextStyle.Classic, "Documentaries Movies")]
+    [InlineData(TextStyle.Netflix, "Kinderfilme Klassiker der Achtziger")]
+    public void Render_WrapLongTitles(TextStyle style, string title)
+    {
+        var options = new CollageOptions { TextStyle = style, WrapLongTitles = true };
+        var jpeg = CollageRenderer.Render(CreatePosters(CollageRenderer.GetCellCount(options)), title, options);
+        File.WriteAllBytes(Path.Combine(SamplesDir, $"Wrap-{style}-{title.Replace(' ', '_')}.jpg"), jpeg);
+        Assert.NotEmpty(jpeg);
+    }
+
     [Fact]
     public void Render_Banner_ForReadme()
     {

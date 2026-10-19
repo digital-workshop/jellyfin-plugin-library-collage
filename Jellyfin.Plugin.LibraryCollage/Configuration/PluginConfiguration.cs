@@ -24,6 +24,9 @@ public class PluginConfiguration : BasePluginConfiguration
     /// <summary>Gets or sets the text style.</summary>
     public TextStyle TextStyle { get; set; } = TextStyle.Poster;
 
+    /// <summary>Gets or sets a value indicating whether long titles wrap at one font size instead of shrinking.</summary>
+    public bool WrapLongTitles { get; set; }
+
     /// <summary>Gets or sets how items are picked.</summary>
     public SelectionMode SelectionMode { get; set; } = SelectionMode.RandomTopRated;
 

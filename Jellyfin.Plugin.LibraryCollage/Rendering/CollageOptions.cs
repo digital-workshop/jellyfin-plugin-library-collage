@@ -28,6 +28,9 @@ public sealed class CollageOptions
     /// <summary>Gets the text style.</summary>
     public TextStyle TextStyle { get; init; } = TextStyle.Poster;
 
+    /// <summary>Gets a value indicating whether long titles wrap at a fixed size instead of shrinking.</summary>
+    public bool WrapLongTitles { get; init; }
+
     /// <summary>Gets the JPEG quality, 1–100.</summary>
     public int JpegQuality { get; init; } = 90;
 }
