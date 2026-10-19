@@ -41,13 +41,20 @@
             #LibraryCollageConfigPage .lc-row-control input[type=range] { width: 13em; accent-color: #00a4dc; }
             #LibraryCollageConfigPage .lc-value { min-width: 3.4em; text-align: right; font-variant-numeric: tabular-nums; }
             #LibraryCollageConfigPage .lc-style-wide { width: auto; min-width: 16em; flex: 0 0 auto; padding: .45em .6em; }
-            #LibraryCollageConfigPage .lc-colorfield input[type=color] { width: 2.4em; height: 2.4em; padding: 0; border: 1px solid rgba(255,255,255,.3); border-radius: .5em; background: none; cursor: pointer; }
-            #LibraryCollageConfigPage .lc-colorfield input[type=color]::-webkit-color-swatch-wrapper { padding: 3px; }
-            #LibraryCollageConfigPage .lc-colorfield input[type=color]::-webkit-color-swatch { border: none; border-radius: .35em; }
-            #LibraryCollageConfigPage .lc-colorfield input[type=color]::-moz-color-swatch { border: none; border-radius: .35em; }
-            #LibraryCollageConfigPage .lc-colorfield.is-default input[type=color] { opacity: .45; }
+            #LibraryCollageConfigPage .lc-colorfield { display: flex; align-items: center; gap: .6em; }
             #LibraryCollageConfigPage .lc-colorfield.is-default .lc-reset { visibility: hidden; }
-            #LibraryCollageConfigPage .lc-hex { width: 9em; font-family: monospace; font-size: .95em; background: rgba(0,0,0,.25); color: inherit; border: 1px solid rgba(255,255,255,.25); border-radius: .4em; padding: .5em .6em; }
+            #LibraryCollageConfigPage .lc-swatch { position: relative; flex: none; width: 2.4em; height: 2.4em; border-radius: .5em; overflow: hidden; cursor: pointer; border: 1px solid rgba(255,255,255,.35);
+                background-color: #fff; background-image: conic-gradient(#c8c8c8 25%, #fff 0 50%, #c8c8c8 0 75%, #fff 0); background-size: .8em .8em; }
+            #LibraryCollageConfigPage .lc-swatch-fill { position: absolute; inset: 0; }
+            #LibraryCollageConfigPage .lc-swatch input[type=color] { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; padding: 0; border: 0; opacity: 0; cursor: pointer; }
+            #LibraryCollageConfigPage .lc-colorfield.is-default .lc-swatch { opacity: .6; }
+            #LibraryCollageConfigPage input.lc-hex { width: 9em; font-family: monospace !important; font-size: .95em !important; background: rgba(0,0,0,.3) !important; color: #e8e8ef !important; border: 1px solid rgba(255,255,255,.25) !important; border-radius: .4em !important; padding: .5em .6em !important; box-shadow: none !important; }
+            #LibraryCollageConfigPage input.lc-hex:focus { border-color: #00a4dc !important; outline: none; }
+            #LibraryCollageConfigPage input.lc-hex::placeholder { color: rgba(255,255,255,.45); opacity: 1; }
+            #LibraryCollageConfigPage input.lc-hex-wide { width: 13.5em; }
+            #LibraryCollageConfigPage .lc-stack { flex-direction: column; align-items: flex-end; gap: .7em; }
+            #LibraryCollageConfigPage .lc-opacity { display: flex; align-items: center; gap: .6em; }
+            #LibraryCollageConfigPage .lc-opacity-label { font-size: .85em; opacity: .7; }
             #LibraryCollageConfigPage .lc-switch { position: relative; display: inline-block; width: 2.8em; height: 1.6em; flex: none; cursor: pointer; }
             #LibraryCollageConfigPage .lc-switch input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; padding: 0; border: 0; -webkit-appearance: none; appearance: none; clip: rect(0 0 0 0); }
             #LibraryCollageConfigPage .lc-row[hidden] { display: none; }
@@ -179,8 +186,8 @@
                                 <div class="lc-row-title">Text colour</div>
                                 <div class="lc-hint">Default: white, or dark grey for the Label style.</div>
                             </div>
-                            <div class="lc-row-control lc-colorfield" id="lcTextColorField" data-default="#ffffff">
-                                <input type="color" aria-label="Text colour">
+                            <div class="lc-colorfield" id="lcTextColorField" data-default="#ffffff">
+                                <label class="lc-swatch"><span class="lc-swatch-fill"></span><input type="color" aria-label="Text colour"></label>
                                 <input type="text" class="lc-hex" placeholder="Default" spellcheck="false" aria-label="Text colour as hex">
                                 <button type="button" class="lc-preview-btn lc-reset">Reset</button>
                             </div>
@@ -188,22 +195,19 @@
                         <div class="lc-row">
                             <div class="lc-row-label">
                                 <div class="lc-row-title">Box colour <span class="lc-tag">Label style</span></div>
-                                <div class="lc-hint">Hex, #rrggbbaa or rgba(…). Default: light grey.</div>
+                                <div class="lc-hint">Pick a colour and set its transparency with the slider. You can also type hex, #rrggbbaa or rgba(…).</div>
                             </div>
-                            <div class="lc-row-control lc-colorfield" id="lcBoxColorField" data-default="#ebebf0" data-alpha="true">
-                                <input type="color" aria-label="Box colour">
-                                <input type="text" class="lc-hex" placeholder="Default" spellcheck="false" aria-label="Box colour as hex or rgba">
-                                <button type="button" class="lc-preview-btn lc-reset">Reset</button>
-                            </div>
-                        </div>
-                        <div class="lc-row">
-                            <div class="lc-row-label">
-                                <div class="lc-row-title">Box opacity <span class="lc-tag">Label style</span></div>
-                                <div class="lc-hint">0 % is invisible, 100 % is solid.</div>
-                            </div>
-                            <div class="lc-row-control">
-                                <input type="range" id="lcBoxOpacity" min="0" max="100" step="5">
-                                <span class="lc-value"><span id="lcBoxOpacityValue"></span> %</span>
+                            <div class="lc-row-control lc-stack">
+                                <div class="lc-colorfield" id="lcBoxColorField" data-default="#ebebf0" data-alpha="true">
+                                    <label class="lc-swatch"><span class="lc-swatch-fill"></span><input type="color" aria-label="Box colour"></label>
+                                    <input type="text" class="lc-hex lc-hex-wide" placeholder="Default" spellcheck="false" aria-label="Box colour as hex or rgba">
+                                    <button type="button" class="lc-preview-btn lc-reset">Reset</button>
+                                </div>
+                                <div class="lc-opacity">
+                                    <span class="lc-opacity-label">Opacity</span>
+                                    <input type="range" id="lcBoxOpacity" min="0" max="100" step="5" aria-label="Box opacity">
+                                    <span class="lc-value"><span id="lcBoxOpacityValue"></span> %</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -262,12 +266,31 @@
                     });
                 }
 
+                function hexToRgb(hex) {
+                    var n = parseInt(hex.slice(1), 16);
+                    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+                }
+
+                function boxAlpha() {
+                    return (parseInt(page.querySelector('#lcBoxOpacity').value, 10) || 0) / 100;
+                }
+
                 // A colour field holds '' (style default) or '#rrggbb' in data-value.
+                // The box field also shows the opacity slider's value: swatch over a checkerboard, text as rgba().
+                function renderColorField(field) {
+                    var value = field.getAttribute('data-value') || '';
+                    var hasAlpha = field.hasAttribute('data-alpha');
+                    var rgb = hexToRgb(value || field.getAttribute('data-default'));
+                    var alpha = hasAlpha ? boxAlpha() : 1;
+                    field.querySelector('.lc-swatch-fill').style.background = 'rgba(' + rgb.join(', ') + ', ' + alpha + ')';
+                    field.querySelector('.lc-hex').value = !value ? '' : hasAlpha ? 'rgba(' + rgb.join(', ') + ', ' + alpha + ')' : value;
+                    field.classList.toggle('is-default', !value);
+                }
+
                 function setColor(field, value) {
                     field.setAttribute('data-value', value);
                     field.querySelector('input[type=color]').value = value || field.getAttribute('data-default');
-                    field.querySelector('.lc-hex').value = value;
-                    field.classList.toggle('is-default', !value);
+                    renderColorField(field);
                 }
 
                 function getColor(selector) {
@@ -277,6 +300,7 @@
                 function setOpacity(percent) {
                     page.querySelector('#lcBoxOpacity').value = percent;
                     page.querySelector('#lcBoxOpacityValue').textContent = percent;
+                    renderColorField(page.querySelector('#lcBoxColorField'));
                 }
 
                 // Accepts #rgb, #rrggbb, #rrggbbaa and rgb()/rgba(); returns { hex: '#rrggbb', alpha: 0–1 or null }.
@@ -473,7 +497,7 @@
                 });
 
                 page.querySelector('#lcBoxOpacity').addEventListener('input', function (e) {
-                    page.querySelector('#lcBoxOpacityValue').textContent = e.target.value;
+                    setOpacity(e.target.value);
                 });
 
                 ['#lcTextColorField', '#lcBoxColorField'].forEach(function (selector) {
