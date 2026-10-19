@@ -9,6 +9,14 @@
     "imageUrl": "https://raw.githubusercontent.com/digital-workshop/jellyfin-plugin-library-collage/main/docs/real-example.jpg",
     "versions": [
       {
+        "version": "1.0.10.1",
+        "changelog": "Beta: option to keep the same font size and wrap long library names (#1)",
+        "targetAbi": "12.2.0.0",
+        "sourceUrl": "https://github.com/digital-workshop/jellyfin-plugin-library-collage/releases/download/v1.0.10.1/library-collage_1.0.10.1.zip",
+        "checksum": "da847016b204e4a16b2de5131ab0038e",
+        "timestamp": "2026-10-19T18:02:51Z"
+      },
+      {
         "version": "1.0.10.0",
         "changelog": "Set the text style of all libraries at once; Default now shows which style it uses (#2)",
         "targetAbi": "12.2.0.0",
