@@ -65,12 +65,16 @@ All settings are on the plugin's settings page.
 | **Generate** | – | Per library. Creates the collage for this library right away. |
 | **Layout** | Tilted posters | *Tilted posters* or *Straight grid*. |
 | **Poster selection** | Random from top rated | *Random from top rated*, *Random*, *Recently added*, or *Top rated*. |
-| **Top rated: best X %** | 50 | The share of the library that *Random from top rated* picks from. |
+| **Top rated share** | 50 % | The share of the library that *Random from top rated* picks from. Only shown when that mode is selected. |
 | **Minimum titles with poster** | 4 | Libraries with fewer titles are skipped. Missing slots are filled with repeats. |
 | **Darkening** | 50 % | Strength of the dark overlay. |
 | **Write library name** | On | Turns the text off if your theme already shows the name. |
 | **Default text style** | Poster | *Poster*, *Classic*, *Netflix*, or *Label*. See below. |
 | **Text style** (per library) | Default | Overrides the default text style for one library. "Set all…" above the column changes every library at once. |
+| **Same font size for all libraries** | Off | Long names wrap onto more lines instead of shrinking, so every tile uses the same font size. |
+| **Text size** | 100 % | Scales the text of every style, from 50 % to 150 %. |
+| **Text colour** | Default | White, or dark grey for the Label style. |
+| **Box colour** | Light grey, 80 % | Colour and opacity of the box behind the Label style. Accepts hex, `#rrggbbaa` or `rgba(…)`. |
 
 <hr style="background-color:#b4c5fb; height:2px; border:none;">
 
@@ -180,6 +184,7 @@ It contains the betas and every stable release. Betas may contain bugs.
 
 ## Changelog
 
+- **1.0.11** (2026-10-19): New option to keep the same font size for all libraries; long names wrap instead of shrinking ([#1](https://github.com/digital-workshop/jellyfin-plugin-library-collage/issues/1)). New text size slider, custom text colour, and custom box colour with opacity for the Label style. Redesigned settings page. The installed version is shown at the bottom of the settings page.
 - **1.0.10** (2026-10-19): A *Set all…* dropdown above the *Text style* column changes the style of every library at once. The per-library *Default* option now shows which style it uses, e.g. "Default (Classic)" ([#2](https://github.com/digital-workshop/jellyfin-plugin-library-collage/issues/2)).
 - **1.0.9** (2026-10-18): *Dashboard → Libraries* shows a new collage without restarting Jellyfin.
 - **1.0.8** (2026-10-18): You can choose the text style per library.
