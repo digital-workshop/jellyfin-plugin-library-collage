@@ -141,6 +141,7 @@
                             <span>Save &amp; generate now</span>
                         </button>
                     </div>
+                    <p id="lcVersion" class="fieldDescription" style="text-align: left; opacity: .6; margin-top: .8em;"></p>
                 </form>
             </div>
         </div>
@@ -325,7 +326,15 @@
                     });
                 }
 
+                function showVersion() {
+                    ApiClient.getJSON(ApiClient.getUrl('Plugins')).then(function (plugins) {
+                        var self = plugins.filter(function (p) { return (p.Id || '').replace(/-/g, '') === pluginId.replace(/-/g, ''); })[0];
+                        page.querySelector('#lcVersion').textContent = self ? 'Library Collage ' + self.Version : '';
+                    });
+                }
+
                 page.addEventListener('pageshow', load);
+                page.addEventListener('pageshow', showVersion);
 
                 page.querySelector('#lcTextStyle').addEventListener('change', refreshDefaultStyleLabels);
 
