@@ -27,6 +27,7 @@ Requires **Jellyfin 12.2**.
 - [Uninstallation](#uninstallation)
 - [FAQ](#faq)
 - [Development](#development)
+- [Changelog](#changelog)
 - [AI Disclaimer](#ai-disclaimer)
 - [License & Acknowledgments](#license--acknowledgments)
 
@@ -174,6 +175,29 @@ https://raw.githubusercontent.com/digital-workshop/jellyfin-plugin-library-colla
 ```
 
 It contains the betas and every stable release. Betas may contain bugs.
+
+<hr style="background-color:#b4c5fb; height:2px; border:none;">
+
+## Changelog
+
+### Beta
+
+Beta versions are only available through the [beta repository](#development). They may contain bugs.
+
+- **1.0.10.1** (2026-10-19): New option *Keep the same font size and wrap long names*. Long library names wrap onto more lines instead of shrinking, so every tile uses the same font size ([#1](https://github.com/digital-workshop/jellyfin-plugin-library-collage/issues/1)).
+
+### Stable
+
+- **1.0.10** (2026-10-19): A *Set all…* dropdown above the *Text style* column changes the style of every library at once. The per-library *Default* option now shows which style it uses, e.g. "Default (Classic)" ([#2](https://github.com/digital-workshop/jellyfin-plugin-library-collage/issues/2)).
+- **1.0.9** (2026-10-18): *Dashboard → Libraries* shows a new collage without restarting Jellyfin.
+- **1.0.8** (2026-10-18): You can choose the text style per library.
+- **1.0.7** (2026-10-18): New text style *Label*: dark text on a translucent light box.
+- **1.0.6** (2026-10-18): Fix: Jellyfin's built-in library image generator no longer replaces the collages during library scans. Collages are now saved as `poster.jpg` in the library folder.
+- **1.0.5** (2026-10-18): *Generate* button per library, which creates that library's collage right away.
+- **1.0.4** (2026-10-18): The settings page is in the dashboard sidebar.
+- **1.0.3** (2026-10-18): Readable *Preview* buttons on the settings page.
+- **1.0.2** (2026-10-18): The settings page and the scheduled task are in English.
+- **1.0.1** (2026-10-18): First release.
 
 <hr style="background-color:#b4c5fb; height:2px; border:none;">
 

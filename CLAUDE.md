@@ -25,6 +25,8 @@ New work goes on `dev`; `main` is what stable users get. The workflow (`.github/
 
 Jellyfin only accepts four numeric version parts, so suffixes like `-beta` are not possible.
 
+Add every release to the *Changelog* section of `README.md`: betas under "Beta", stable versions under "Stable". When a beta goes stable, move its entry over.
+
 Two things follow from this:
 - The bot commits to `main` after every release, so `git pull --rebase origin main` before pushing to `main`.
 - The annotated tag's message becomes the changelog in the Jellyfin catalog.
