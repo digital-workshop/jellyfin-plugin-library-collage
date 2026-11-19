@@ -77,15 +77,15 @@
                         <thead>
                             <tr><th>Enabled</th><th>Library</th><th>Current image</th><th>Overwrite anyway</th><th>Text style<br>
                                 <select id="lcSetAllStyles" class="lc-style" title="Set the text style of all libraries">
-                                    <option value="__keep">Set all…</option>
+                                    <option value="__keep">Set allвЂ¦</option>
                                     <option value="">Default</option>
                                     <option value="Poster">Poster</option>
                                     <option value="Classic">Classic</option>
                                     <option value="Netflix">Netflix</option>
                                     <option value="Label">Label</option>
-                                </select></th><th></th></tr>
+                                </select></th><th>Title overrides</th><th></th></tr>
                         </thead>
-                        <tbody id="lcLibraries"><tr><td colspan="6">Loading…</td></tr></tbody>
+                        <tbody id="lcLibraries"><tr><td colspan="7">LoadingвЂ¦</td></tr></tbody>
                     </table>
                     <p id="lcStatus" class="fieldDescription" aria-live="polite"></p>
                     <img id="lcPreview" class="lc-preview" alt="Preview">
@@ -145,6 +145,17 @@
 
                     <h2 class="sectionTitle">Text</h2>
                     <div class="lc-panel">
+                    <div class="lc-row"><label for="lcFont">Font</label><select id="lcFont" class="lc-style lc-style-wide"></select></div>
+                    <div class="lc-row"><label for="lcAlignment">Horizontal alignment</label><select id="lcAlignment" class="lc-style lc-style-wide"></select></div>
+                    <div class="lc-row"><label for="lcPosition">Vertical position</label><select id="lcPosition" class="lc-style lc-style-wide"></select></div>
+                    <div class="lc-row"><label for="lcLetterCase">Letter case</label><select id="lcLetterCase" class="lc-style lc-style-wide"></select></div>
+                    <div class="lc-row"><label for="lcShadowColor">Shadow color</label><input type="color" id="lcShadowColor" value="#000000"></div>
+                    <div class="lc-row"><label for="lcShadowOpacity">Shadow opacity (%)</label><input type="number" id="lcShadowOpacity" min="0" max="100" placeholder="Style default"></div>
+                    <div class="lc-row"><label for="lcOutline">Outline</label><input type="checkbox" id="lcOutline"></div>
+                    <div class="lc-row"><label for="lcOutlineWidth">Outline width (px at 1080p)</label><input type="number" id="lcOutlineWidth" min="0" max="20" step="0.5"></div>
+                    <div class="lc-row"><label for="lcAutoShrink">Auto-shrink long titles</label><input type="checkbox" id="lcAutoShrink"></div>
+                    </div>
+                    <div class="lc-panel">
                         <div class="lc-row">
                             <div class="lc-row-label">
                                 <div class="lc-row-title">Write library name into the image</div>
@@ -158,7 +169,7 @@
                                 <div class="lc-hint">Used by every library set to "Default".</div>
                             </div>
                             <select id="lcTextStyle" class="lc-style lc-style-wide">
-                                <option value="Poster">Poster (upper case, condensed)</option>
+                                <option value="Poster">Poster (large, uppercase)</option>
                                 <option value="Classic">Classic (bold, centered)</option>
                                 <option value="Netflix">Netflix (bottom left, with gradient)</option>
                                 <option value="Label">Label (dark text on a light box)</option>
@@ -167,7 +178,7 @@
                         <div class="lc-row">
                             <div class="lc-row-label">
                                 <div class="lc-row-title">Same font size for all libraries</div>
-                                <div class="lc-hint">Long names wrap onto more lines. Off: they shrink to fit on one line.</div>
+                                <div class="lc-hint">Wrap at a shared size where space permits. Per-library sizes take precedence.</div>
                             </div>
                             <label class="lc-switch"><input type="checkbox" id="lcWrapLongTitles"><span></span></label>
                         </div>
@@ -195,7 +206,7 @@
                         <div class="lc-row">
                             <div class="lc-row-label">
                                 <div class="lc-row-title">Box colour <span class="lc-tag">Label style</span></div>
-                                <div class="lc-hint">Pick a colour and set its transparency with the slider. You can also type hex, #rrggbbaa or rgba(…).</div>
+                                <div class="lc-hint">Pick a colour and set its transparency with the slider. You can also type hex, #rrggbbaa or rgba(вЂ¦).</div>
                             </div>
                             <div class="lc-row-control lc-stack">
                                 <div class="lc-colorfield" id="lcBoxColorField" data-default="#ebebf0" data-alpha="true">
@@ -234,8 +245,8 @@
 
                 var stateLabels = {
                     None: ['No image', 'lc-none'],
-                    Managed: ['✓ Plugin', 'lc-managed'],
-                    Custom: ['🔒 Own image', 'lc-custom']
+                    Managed: ['вњ“ Plugin', 'lc-managed'],
+                    Custom: ['рџ”’ Own image', 'lc-custom']
                 };
 
                 function escapeHtml(s) {
@@ -252,7 +263,7 @@
                 }
 
                 function styleSelect(index, value) {
-                    return '<select class="lc-style" data-index="' + index + '">'
+                    return '<select class="lc-style lc-library-style" aria-label="Text style" data-index="' + index + '">'
                         + styleNames.map(function (s) {
                             var label = s[0] === '' ? defaultStyleLabel() : s[1];
                             return '<option value="' + s[0] + '"' + ((value || '') === s[0] ? ' selected' : '') + '>' + label + '</option>';
@@ -261,7 +272,7 @@
                 }
 
                 function refreshDefaultStyleLabels() {
-                    page.querySelectorAll('select.lc-style option[value=""]').forEach(function (option) {
+                    page.querySelectorAll('select.lc-library-style option[value=""]').forEach(function (option) {
                         option.textContent = defaultStyleLabel();
                     });
                 }
@@ -303,7 +314,7 @@
                     renderColorField(page.querySelector('#lcBoxColorField'));
                 }
 
-                // Accepts #rgb, #rrggbb, #rrggbbaa and rgb()/rgba(); returns { hex: '#rrggbb', alpha: 0–1 or null }.
+                // Accepts #rgb, #rrggbb, #rrggbbaa and rgb()/rgba(); returns { hex: '#rrggbb', alpha: 0вЂ“1 or null }.
                 function parseColor(input) {
                     var s = input.trim().toLowerCase();
                     var m = s.match(/^#?([0-9a-f]{3})$/);
@@ -329,14 +340,49 @@
                     return null;
                 }
 
+                var fonts = [
+                    ['NotoSans', 'Noto Sans Bold'], ['IBMPlexSans', 'IBM Plex Sans Bold'],
+                    ['Montserrat', 'Montserrat Bold'], ['RobotoCondensed', 'Roboto Condensed Bold'],
+                    ['BebasNeue', 'Bebas Neue']
+                ];
+                var positions = [['StyleDefault', 'Style default'], ['Top', 'Top'], ['Center', 'Center'], ['Bottom', 'Bottom']];
+                var titleOptions = {
+                    Font: fonts,
+                    Position: positions,
+                    Alignment: [['StyleDefault', 'Style default'], ['Left', 'Left'], ['Center', 'Center'], ['Right', 'Right']],
+                    LetterCase: [['StyleDefault', 'Style default'], ['Original', 'Original'], ['Uppercase', 'UPPERCASE']]
+                };
+
+                function optionMarkup(choices, selected) {
+                    return choices.map(function (choice) {
+                        return '<option value="' + choice[0] + '"' + (selected === choice[0] ? ' selected' : '') + '>' + choice[1] + '</option>';
+                    }).join('');
+                }
+
+                function overrideSelect(field, label, choices, value) {
+                    return '<label>' + label + ' <select class="lc-style" data-override="' + field + '">'
+                        + optionMarkup([['', 'Global']].concat(choices), value) + '</select></label>';
+                }
+
+                function titleOverrides(setting) {
+                    return '<details><summary>Customize</summary>'
+                        + overrideSelect('Font', 'Font', fonts, setting.Font)
+                        + '<br>' + overrideSelect('Position', 'Position', positions, setting.Position)
+                        + '<br>' + overrideSelect('DrawText', 'Title', [['true', 'Show'], ['false', 'Hide']], String(setting.DrawText))
+                        + '<br><label>Size (%) <input type="number" min="50" max="150" placeholder="Global" data-override="TextSizePercent"></label>'
+                        + '<br><label>Custom title <input type="text" maxlength="240" data-override="DisplayTitle"></label>'
+                        + '</details>';
+                }
+
                 function renderLibraries() {
                     var body = page.querySelector('#lcLibraries');
                     if (!libraries.length) {
-                        body.innerHTML = '<tr><td colspan="6">No libraries found.</td></tr>';
+                        body.innerHTML = '<tr><td colspan="7">No libraries found.</td></tr>';
                         return;
                     }
 
                     body.innerHTML = libraries.map(function (lib, i) {
+                        var setting = getLibrarySetting(lib.Id);
                         var state = stateLabels[lib.ImageState] || stateLabels.None;
                         return '<tr>'
                             + '<td><input type="checkbox" data-index="' + i + '" data-field="Enabled"' + (lib.Enabled ? ' checked' : '') + '></td>'
@@ -344,10 +390,26 @@
                             + '<td><span class="lc-badge ' + state[1] + '">' + state[0] + '</span></td>'
                             + '<td><input type="checkbox" data-index="' + i + '" data-field="ForceOverwrite"' + (lib.ForceOverwrite ? ' checked' : '') + '></td>'
                             + '<td>' + styleSelect(i, lib.TextStyle) + '</td>'
+                            + '<td data-overrides>' + titleOverrides(setting) + '</td>'
                             + '<td class="lc-row-actions"><button type="button" class="lc-preview-btn" data-preview="' + i + '"><span class="material-icons" aria-hidden="true">visibility</span>Preview</button>'
                             + '<button type="button" class="lc-preview-btn" data-generate="' + i + '"><span class="material-icons" aria-hidden="true">auto_awesome</span>Generate</button></td>'
                             + '</tr>';
                     }).join('');
+                    body.querySelectorAll('[data-overrides]').forEach(function (cell, index) {
+                        var setting = getLibrarySetting(libraries[index].Id);
+                        cell.querySelector('[data-override="TextSizePercent"]').value = setting.TextSizePercent ?? '';
+                        cell.querySelector('[data-override="DisplayTitle"]').value = setting.DisplayTitle ?? '';
+                    });
+                }
+
+                function normalizeId(id) {
+                    return id.replace(/-/g, '').toLowerCase();
+                }
+
+                function getLibrarySetting(id) {
+                    return (config.Libraries || []).find(function (setting) {
+                        return normalizeId(setting.LibraryId) === normalizeId(id);
+                    }) || {};
                 }
 
                 function readForm() {
@@ -355,13 +417,42 @@
                         libraries[cb.getAttribute('data-index')][cb.getAttribute('data-field')] = cb.checked;
                     });
 
-                    page.querySelectorAll('#lcLibraries select.lc-style').forEach(function (select) {
+                    page.querySelectorAll('#lcLibraries select.lc-library-style').forEach(function (select) {
                         libraries[select.getAttribute('data-index')].TextStyle = select.value || null;
                     });
 
-                    config.Libraries = libraries.map(function (lib) {
-                        return { LibraryId: lib.Id, Enabled: lib.Enabled, ForceOverwrite: lib.ForceOverwrite, TextStyle: lib.TextStyle || null };
+                    var rows = page.querySelectorAll('#lcLibraries [data-overrides]');
+                    var visibleSettings = libraries.map(function (lib, index) {
+                        var controls = rows[index];
+                        var setting = { LibraryId: lib.Id, Enabled: lib.Enabled, ForceOverwrite: lib.ForceOverwrite, TextStyle: lib.TextStyle || null };
+                        controls.querySelectorAll('[data-override]').forEach(function (input) {
+                            var value = input.value;
+                            if (value === '') {
+                                value = null;
+                            } else if (input.type === 'number') {
+                                value = Number(value);
+                            } else if (input.dataset.override === 'DrawText') {
+                                value = value === 'true';
+                            }
+                            setting[input.dataset.override] = value;
+                        });
+                        return setting;
                     });
+                    var visibleIds = new Set(visibleSettings.map(function (setting) { return normalizeId(setting.LibraryId); }));
+                    config.Libraries = visibleSettings.concat((config.Libraries || []).filter(function (setting) {
+                        return !visibleIds.has(normalizeId(setting.LibraryId));
+                    }));
+                    Object.keys(titleOptions).forEach(function (key) {
+                        config[key] = page.querySelector('#lc' + key).value;
+                    });
+                    ['Outline', 'AutoShrink'].forEach(function (key) {
+                        config[key] = page.querySelector('#lc' + key).checked;
+                    });
+                    ['ShadowOpacity', 'OutlineWidth'].forEach(function (key) {
+                        var input = page.querySelector('#lc' + key);
+                        config[key] = input.value === '' ? (key === 'OutlineWidth' ? 3 : null) : Number(input.value);
+                    });
+                    config.ShadowColor = page.querySelector('#lcShadowColor').value;
                     config.Layout = page.querySelector('#lcLayout').value;
                     config.SelectionMode = page.querySelector('#lcSelectionMode').value;
                     config.TopRatedPercent = parseInt(page.querySelector('#lcTopRatedPercent').value, 10) || 50;
@@ -388,6 +479,14 @@
                         ApiClient.getJSON(ApiClient.getUrl('LibraryCollage/Libraries'))
                     ]).then(function (results) {
                         config = results[0];
+                        Object.keys(titleOptions).forEach(function (key) {
+                            page.querySelector('#lc' + key).innerHTML = optionMarkup(titleOptions[key], config[key]);
+                        });
+                        page.querySelector('#lcOutline').checked = config.Outline;
+                        page.querySelector('#lcAutoShrink').checked = config.AutoShrink !== false;
+                        page.querySelector('#lcOutlineWidth').value = config.OutlineWidth ?? 3;
+                        page.querySelector('#lcShadowColor').value = config.ShadowColor || '#000000';
+                        page.querySelector('#lcShadowOpacity').value = config.ShadowOpacity ?? '';
                         libraries = results[1];
                         page.querySelector('#lcLayout').value = config.Layout;
                         page.querySelector('#lcSelectionMode').value = config.SelectionMode;
@@ -413,11 +512,16 @@
 
                 function showPreview(index) {
                     var img = page.querySelector('#lcPreview');
+                    if (!config) { return; }
                     Dashboard.showLoadingMsg();
-                    save().then(function () {
-                        return fetch(ApiClient.getUrl('LibraryCollage/Preview/' + libraries[index].Id), {
-                            headers: { 'Authorization': 'MediaBrowser Token="' + ApiClient.accessToken() + '"' }
-                        });
+                    readForm();
+                    fetch(ApiClient.getUrl('LibraryCollage/Preview/' + libraries[index].Id), {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': 'MediaBrowser Token="' + ApiClient.accessToken() + '"',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(config)
                     }).then(function (response) {
                         if (!response.ok) {
                             throw new Error('preview');
@@ -485,7 +589,7 @@
                 page.querySelector('#lcSetAllStyles').addEventListener('change', function (e) {
                     var value = e.target.value;
                     if (value !== '__keep') {
-                        page.querySelectorAll('#lcLibraries select.lc-style').forEach(function (select) {
+                        page.querySelectorAll('#lcLibraries select.lc-library-style').forEach(function (select) {
                             select.value = value;
                         });
                     }
@@ -565,7 +669,7 @@
                         return ApiClient.ajax({ type: 'POST', url: ApiClient.getUrl('LibraryCollage/Generate') });
                     }).then(function () {
                         Dashboard.hideLoadingMsg();
-                        Dashboard.alert('Started. See Dashboard → Scheduled Tasks for progress.');
+                        Dashboard.alert('Started. See Dashboard в†’ Scheduled Tasks for progress.');
                     }).catch(function () {
                         Dashboard.hideLoadingMsg();
                         Dashboard.alert('Could not start the task.');

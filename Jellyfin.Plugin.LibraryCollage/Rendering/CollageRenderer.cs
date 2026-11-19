@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using Jellyfin.Plugin.LibraryCollage.Configuration;
 using SkiaSharp;
 
@@ -16,9 +14,6 @@ namespace Jellyfin.Plugin.LibraryCollage.Rendering;
 public static class CollageRenderer
 {
     private const float PosterAspect = 2f / 3f;
-
-    private static readonly Lazy<SKTypeface> DisplayTypeface = new(() => LoadFont("BebasNeue-Regular.ttf"));
-    private static readonly Lazy<SKTypeface> SansTypeface = new(() => LoadFont("Montserrat-ExtraBold.ttf"));
 
     /// <summary>
     /// Gets how many poster cells the layout has, i.e. how many distinct posters are useful at most.
@@ -282,66 +277,127 @@ public static class CollageRenderer
         float w = options.Width;
         float h = options.Height;
 
-        var (typeface, text, targetSize, maxWidth) = options.TextStyle switch
+        var (targetSize, maxWidth) = options.TextStyle switch
         {
-            TextStyle.Poster => (DisplayTypeface.Value, title.ToUpper(CultureInfo.CurrentCulture), h * 0.30f, w * 0.88f),
-            TextStyle.Label => (DisplayTypeface.Value, title.ToUpper(CultureInfo.CurrentCulture), h * 0.26f, w * 0.74f),
-            TextStyle.Netflix => (SansTypeface.Value, title, h * 0.10f, w * 0.88f),
-            _ => (SansTypeface.Value, title, h * 0.19f, w * 0.86f),
+            TextStyle.Poster => (h * 0.30f, w * 0.88f),
+            TextStyle.Label => (h * 0.26f, w * 0.74f),
+            TextStyle.Netflix => (h * 0.10f, w * 0.88f),
+            _ => (h * 0.19f, w * 0.86f),
         };
+
+        var uppercase = options.LetterCase == TitleCase.Uppercase ||
+            (options.LetterCase == TitleCase.StyleDefault && options.TextStyle is TextStyle.Poster or TextStyle.Label);
+        var text = (uppercase ? title.ToUpperInvariant() : title).Normalize();
         targetSize *= Math.Clamp(options.TextScale, 0.5f, 1.5f);
 
-        using var font = new SKFont(typeface, targetSize) { Edging = SKFontEdging.Antialias, Subpixel = true };
-        var lines = options.WrapLongTitles
-            ? WrapLines(font, text, targetSize * 0.8f, maxWidth, options.TextStyle == TextStyle.Netflix ? h * 0.5f : h * 0.75f)
-            : FitLines(font, text, targetSize, maxWidth);
-
-        using var paint = new SKPaint
+        using var font = new TitleFonts(options.Font, targetSize);
+        var maxHeight = options.TextStyle == TextStyle.Netflix ? h * 0.5f : h * 0.75f;
+        var paragraphs = text.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if (paragraphs.Length == 0)
         {
-            Color = options.TextColor ?? SKColors.White,
-            IsAntialias = true,
-            ImageFilter = SKImageFilter.CreateDropShadow(0, h * 0.004f, h * 0.008f, h * 0.008f, SKColors.Black.WithAlpha(190))
-        };
-
-        var metrics = font.Metrics;
-        var capHeight = metrics.CapHeight > 0 ? metrics.CapHeight : -metrics.Ascent * 0.7f;
-        var lineHeight = capHeight * 1.35f;
-        var blockHeight = capHeight + (lineHeight * (lines.Count - 1));
-
-        if (options.TextStyle == TextStyle.Netflix)
-        {
-            var x = w * 0.05f;
-            var lastBaseline = h * 0.88f;
-            for (var i = 0; i < lines.Count; i++)
-            {
-                var baseline = lastBaseline - (lineHeight * (lines.Count - 1 - i));
-                canvas.DrawText(lines[i], x, baseline, SKTextAlign.Left, font, paint);
-            }
-
             return;
         }
 
-        var firstBaseline = ((h - blockHeight) / 2f) + capHeight;
+        var wrap = options.WrapLongTitles || !options.AutoShrink;
+        var lines = wrap
+            ? paragraphs.SelectMany(p => WrapLines(font, p, targetSize * (options.WrapLongTitles ? 0.8f : 1f), maxWidth)).ToList()
+            : paragraphs.Length == 1 ? FitLines(font, text, targetSize, maxWidth) : paragraphs.ToList();
 
-        if (options.TextStyle == TextStyle.Label)
+        var (ascent, descent) = font.GetVerticalMetrics(lines);
+        var lineHeight = (ascent + descent) * 1.04f;
+        var blockHeight = ascent + descent + (lineHeight * (lines.Count - 1));
+        var widest = lines.Max(font.MeasureText);
+        // Even fixed-size mode must fit the canvas when a single word or a multiline block is too large.
+        var fit = Math.Min(1f, Math.Min(maxWidth / widest, maxHeight / blockHeight));
+        if (fit < 1f)
         {
-            DrawLabelBox(canvas, font, lines, w / 2f, h / 2f, blockHeight, capHeight, (options.LabelBoxColor ?? new SKColor(235, 235, 240)).WithAlpha((byte)Math.Round(Math.Clamp(options.LabelBoxOpacity, 0, 100) * 2.55)));
-            paint.Color = options.TextColor ?? new SKColor(24, 24, 28);
-            paint.ImageFilter = null;
+            font.Size *= fit;
+            (ascent, descent) = font.GetVerticalMetrics(lines);
+            lineHeight = (ascent + descent) * 1.04f;
+            blockHeight = ascent + descent + (lineHeight * (lines.Count - 1));
+            widest = lines.Max(font.MeasureText);
+        }
+
+        var label = options.TextStyle == TextStyle.Label;
+        var netflix = options.TextStyle == TextStyle.Netflix;
+        var alignment = options.Alignment == TitleAlignment.StyleDefault
+            ? netflix ? TitleAlignment.Left : TitleAlignment.Center
+            : options.Alignment;
+        var position = options.Position == TitlePosition.StyleDefault
+            ? netflix ? TitlePosition.Bottom : TitlePosition.Center
+            : options.Position;
+        var margin = w * (label ? 0.13f : 0.05f);
+        var top = position switch
+        {
+            TitlePosition.Top => h * 0.09f,
+            TitlePosition.Bottom => h * 0.88f - blockHeight,
+            _ => (h - blockHeight) / 2f
+        };
+        var anchor = alignment switch
+        {
+            TitleAlignment.Left => margin,
+            TitleAlignment.Right => w - margin,
+            _ => w / 2f
+        };
+        var opacity = Math.Clamp(options.ShadowOpacity ?? (label ? 0 : 75), 0, 100);
+        using var shadow = opacity == 0 ? null : SKImageFilter.CreateDropShadow(
+            0, h * 0.004f, h * 0.008f, h * 0.008f,
+            (options.ShadowColor ?? SKColors.Black).WithAlpha((byte)Math.Round(opacity * 255 / 100d)));
+        using var paint = new SKPaint
+        {
+            Color = options.TextColor ?? (label ? new SKColor(24, 24, 28) : SKColors.White),
+            IsAntialias = true
+        };
+        using var outline = options.Outline && options.OutlineWidth > 0 ? new SKPaint
+        {
+            Color = paint.Color.Red + paint.Color.Green + paint.Color.Blue > 384 ? SKColors.Black : SKColors.White,
+            IsAntialias = true,
+            Style = SKPaintStyle.Stroke,
+            StrokeJoin = SKStrokeJoin.Round,
+            StrokeWidth = Math.Clamp(options.OutlineWidth, 0, 20) * h / 1080f
+        } : null;
+
+        if (label)
+        {
+            var centerX = alignment switch
+            {
+                TitleAlignment.Left => anchor + (widest / 2f),
+                TitleAlignment.Right => anchor - (widest / 2f),
+                _ => anchor
+            };
+            DrawLabelBox(canvas, widest, centerX, top + (blockHeight / 2f), blockHeight, font.Size * 0.65f,
+                (options.LabelBoxColor ?? new SKColor(235, 235, 240)).WithAlpha((byte)Math.Round(Math.Clamp(options.LabelBoxOpacity, 0, 100) * 2.55)));
+        }
+
+        using var layer = shadow is null ? null : new SKPaint { ImageFilter = shadow };
+        if (layer is not null)
+        {
+            canvas.SaveLayer(layer);
         }
 
         for (var i = 0; i < lines.Count; i++)
         {
-            canvas.DrawText(lines[i], w / 2f, firstBaseline + (lineHeight * i), SKTextAlign.Center, font, paint);
+            var width = font.MeasureText(lines[i]);
+            var left = alignment switch
+            {
+                TitleAlignment.Left => anchor,
+                TitleAlignment.Right => anchor - width,
+                _ => anchor - (width / 2f)
+            };
+            font.Draw(canvas, lines[i], left, top + ascent + (lineHeight * i), paint, outline);
+        }
+
+        if (layer is not null)
+        {
+            canvas.Restore();
         }
     }
 
     /// <summary>
     /// Draws the translucent light box behind the text of the label style.
     /// </summary>
-    private static void DrawLabelBox(SKCanvas canvas, SKFont font, List<string> lines, float centerX, float centerY, float blockHeight, float capHeight, SKColor boxColor)
+    private static void DrawLabelBox(SKCanvas canvas, float textWidth, float centerX, float centerY, float blockHeight, float capHeight, SKColor boxColor)
     {
-        var textWidth = lines.Max(l => font.MeasureText(l));
         var padX = capHeight * 0.32f;
         var padY = capHeight * 0.26f;
         var boxWidth = textWidth + (2 * padX);
@@ -349,11 +405,12 @@ public static class CollageRenderer
         var box = SKRect.Create(centerX - (boxWidth / 2f), centerY - (boxHeight / 2f), boxWidth, boxHeight);
         var radius = capHeight * 0.16f;
 
+        using var blur = SKMaskFilter.CreateBlur(SKBlurStyle.Normal, capHeight * 0.08f);
         using var shadow = new SKPaint
         {
             Color = SKColors.Black.WithAlpha((byte)(110 * boxColor.Alpha / 255)),
             IsAntialias = true,
-            MaskFilter = SKMaskFilter.CreateBlur(SKBlurStyle.Normal, capHeight * 0.08f)
+            MaskFilter = blur
         };
         canvas.DrawRoundRect(box.Left, box.Top + (capHeight * 0.03f), box.Width, box.Height, radius, radius, shadow);
 
@@ -364,7 +421,7 @@ public static class CollageRenderer
     /// <summary>
     /// Shrinks the font until the text fits. If one line would get too small, splits into two lines.
     /// </summary>
-    private static List<string> FitLines(SKFont font, string text, float targetSize, float maxWidth)
+    private static List<string> FitLines(TitleFonts font, string text, float targetSize, float maxWidth)
     {
         var lines = new List<string> { text };
         var size = SizeToFit(font, lines, targetSize, maxWidth);
@@ -388,48 +445,30 @@ public static class CollageRenderer
     /// Keeps one font size for every title and wraps onto more lines instead.
     /// Only shrinks when a single word is wider than a line or the lines don't fit in height.
     /// </summary>
-    private static List<string> WrapLines(SKFont font, string text, float size, float maxWidth, float maxHeight)
+    private static List<string> WrapLines(TitleFonts font, string text, float size, float maxWidth)
     {
-        var words = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        var lines = new List<string> { text };
-
-        for (var attempt = 0; attempt < 20; attempt++)
+        font.Size = size;
+        var lines = new List<string>();
+        var current = string.Empty;
+        foreach (var word in text.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries))
         {
-            font.Size = size;
-            lines = new List<string>();
-            var current = string.Empty;
-            foreach (var word in words)
+            var candidate = current.Length == 0 ? word : current + " " + word;
+            if (current.Length > 0 && font.MeasureText(candidate) > maxWidth)
             {
-                var candidate = current.Length == 0 ? word : current + " " + word;
-                if (current.Length > 0 && font.MeasureText(candidate) > maxWidth)
-                {
-                    lines.Add(current);
-                    current = word;
-                }
-                else
-                {
-                    current = candidate;
-                }
+                lines.Add(current);
+                current = word;
             }
-
-            lines.Add(current);
-
-            var widest = lines.Max(l => font.MeasureText(l));
-            var capHeight = font.Metrics.CapHeight > 0 ? font.Metrics.CapHeight : -font.Metrics.Ascent * 0.7f;
-            var blockHeight = capHeight + (capHeight * 1.35f * (lines.Count - 1));
-            var scale = Math.Min(maxWidth / widest, maxHeight / blockHeight);
-            if (scale >= 1f)
+            else
             {
-                break;
+                current = candidate;
             }
-
-            size *= Math.Max(scale, 0.5f) * 0.98f;
         }
 
+        lines.Add(current);
         return lines;
     }
 
-    private static float SizeToFit(SKFont font, List<string> lines, float targetSize, float maxWidth)
+    private static float SizeToFit(TitleFonts font, List<string> lines, float targetSize, float maxWidth)
     {
         font.Size = targetSize;
         var widest = lines.Max(l => font.MeasureText(l));
@@ -458,15 +497,6 @@ public static class CollageRenderer
         first = text[..best].Trim();
         second = text[(best + 1)..].Trim();
         return first.Length > 0 && second.Length > 0;
-    }
-
-    private static SKTypeface LoadFont(string fileName)
-    {
-        var assembly = Assembly.GetExecutingAssembly();
-        var name = $"{typeof(CollageRenderer).Namespace}.Fonts.{fileName}";
-        using var stream = assembly.GetManifestResourceStream(name)
-            ?? throw new InvalidOperationException($"Embedded font '{name}' not found.");
-        return SKTypeface.FromStream(stream) ?? SKTypeface.Default;
     }
 
     private readonly record struct Cell(int Row, int Col, SKRect Rect);

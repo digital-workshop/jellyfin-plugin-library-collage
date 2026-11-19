@@ -1,224 +1,56 @@
-<div align="center">
-  <img src="docs/banner.jpg" alt="Library Collage" width="100%">
-</div>
+# Library Collage RU
 
-<hr style="background-color:#b4c5fb; height:3px; border:none;">
+Плагин Jellyfin, который собирает обложки библиотек из их постеров. Форк [Library Collage от digital-workshop](https://github.com/digital-workshop/jellyfin-plugin-library-collage) добавляет кириллицу и расширенные настройки заголовков. Коллажи формируются локально на сервере.
 
-<div align="center">
+![Слева оригинальный рендерер, справа Library Collage RU](docs/before-after-poster.jpg)
 
-**Automatic poster-collage cover images for your Jellyfin libraries.**
+[Сравнение в стиле Label](docs/before-after-label.jpg)
 
-<img src="docs/real-example.jpg" alt="A generated collage for a Classics library, Label text style" width="100%">
+## Установка
 
-<sub>A real collage generated for a <i>Classics</i> library with the Label text style.</sub>
+Тестовая сборка **1.0.11.100** рассчитана на **Jellyfin 12.4.0 / .NET 10**. ABI плагина — **12.4.0.0**. SkiaSharp **3.119.4** предоставляет сервер Jellyfin. В GitHub Releases сборка пока не опубликована.
 
-</div>
+При переходе с оригинала 1.0.11.0 сохраните снимок `/config` и установите форк как замену. GUID и имя сборки совпадают, поэтому Jellyfin может использовать прежнюю конфигурацию. Оставляйте в каталоге плагинов только один экземпляр Library Collage. Подробные команды и процедура возврата к оригиналу приведены в [инструкции для Jellyfin Docker](docs/INSTALL-DOCKER-RU.md).
 
-Library Collage replaces the plain tiles under **My Media** with a generated cover image. Each cover is a tilted collage of the library's posters, darkened so the library name on top stays readable. It refreshes on a schedule, so your home screen stays up to date as your libraries grow.
+## Настройка
 
-Requires **Jellyfin 12.2**.
+Откройте **Dashboard → Plugins → Library Collage**. Можно выбирать библиотеки, макет коллажа, способ подбора постеров, затемнение и условия перезаписи. **Overwrite anyway** разрешает заменить собственную обложку конкретной библиотеки.
 
-## Table of Contents
+- В разделе **Text** доступны стили Poster, Classic, Netflix и Label, выбор шрифта, размер, цвет, тень, обводка, выравнивание, положение и регистр заголовка.
+- **Same font size for all libraries** предпочитает перенос при общем размере. При выключенном **Auto-shrink** длинный текст тоже сначала переносится. В обоих режимах размер уменьшается, если иначе заголовок не помещается на холсте.
+- В **Title overrides → Customize** можно изменить шрифт, размер, положение и видимость заголовка одной библиотеки или задать свой текст, сохранив имя библиотеки в Jellyfin.
+- **Preview** показывает текущие настройки формы без их сохранения и без изменения обложки. **Generate** сохраняет настройки и создаёт обложку выбранной библиотеки с учётом правил перезаписи.
 
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Styles](#styles)
-- [How It Works](#how-it-works)
-- [Uninstallation](#uninstallation)
-- [FAQ](#faq)
-- [Development](#development)
-- [Changelog](#changelog)
-- [AI Disclaimer](#ai-disclaimer)
-- [License & Acknowledgments](#license--acknowledgments)
+## Кириллица и шрифты
 
-<hr style="background-color:#b4c5fb; height:2px; border:none;">
+Noto Sans Bold — шрифт по умолчанию и запасной шрифт для отсутствующих глифов, в том числе кириллицы в Bebas Neue. Встроенные файлы покрывают русский алфавит с Ё/ё, латиницу, цифры и распространённую пунктуацию. Символы вне охвата отображаются знаком замены. Сложное формирование письменностей, двунаправленный текст и цветные эмодзи не поддерживаются.
 
-## Installation
+Все пять шрифтов распространяются на условиях **SIL Open Font License 1.1**. Тексты лицензий и сведения об авторах находятся в [Rendering/Fonts](Jellyfin.Plugin.LibraryCollage/Rendering/Fonts) и в установочном ZIP.
 
-### Prerequisites
+| Шрифт | Официальный источник и подготовка |
+|---|---|
+| Noto Sans Bold | [Google Fonts / Noto Project](https://github.com/google/fonts/tree/main/ofl/notosans), статическое начертание 700, стандартная ширина |
+| IBM Plex Sans Bold | [IBM Plex](https://github.com/IBM/plex/tree/master/packages/plex-sans/fonts/complete/ttf), оригинальный статический TTF |
+| Montserrat Bold | [Google Fonts / Montserrat.Git](https://github.com/google/fonts/tree/main/ofl/montserrat), статическое начертание 700 |
+| Roboto Condensed Bold | [Google Fonts / Roboto Project](https://github.com/google/fonts/tree/main/ofl/robotocondensed), статическое начертание 700 |
+| Bebas Neue | [Dharma Type](https://github.com/dharmatype/Bebas-Neue), оригинальный TTF из upstream, кириллица подставляется через Noto Sans |
 
-- Jellyfin Server **12.2** or newer
-- Administrator access to the Jellyfin dashboard
+Статические начертания из variable TTF получены с помощью FontTools.
 
-### Setup Instructions
 
-1. Open **Dashboard → Plugins → Repositories** and click **+**.
-2. Enter any name, for example `Library Collage`, and this repository URL:
-   ```
-   https://raw.githubusercontent.com/digital-workshop/jellyfin-plugin-library-collage/main/manifest.json
-   ```
-3. Go to **Dashboard → Plugins → Catalog** and install **Library Collage**.
-4. Restart Jellyfin.
-5. Open **Dashboard → Plugins → Library Collage**, choose your libraries, and click **Save & generate now**.
+## Сборка и проверка
 
-<hr style="background-color:#b4c5fb; height:2px; border:none;">
+Из корня репозитория с установленным .NET 10 SDK:
 
-## Configuration
-
-All settings are on the plugin's settings page.
-
-| Setting | Default | Description |
-|---|---|---|
-| **Libraries** | Movie libraries on | Choose which libraries get a collage. |
-| **Overwrite anyway** | Off | Per library. Replaces an image that the plugin did not create. |
-| **Preview** | – | Per library. Renders the collage with the current settings without changing anything. |
-| **Generate** | – | Per library. Creates the collage for this library right away. |
-| **Layout** | Tilted posters | *Tilted posters* or *Straight grid*. |
-| **Poster selection** | Random from top rated | *Random from top rated*, *Random*, *Recently added*, or *Top rated*. |
-| **Top rated share** | 50 % | The share of the library that *Random from top rated* picks from. Only shown when that mode is selected. |
-| **Minimum titles with poster** | 4 | Libraries with fewer titles are skipped. Missing slots are filled with repeats. |
-| **Darkening** | 50 % | Strength of the dark overlay. |
-| **Write library name** | On | Turns the text off if your theme already shows the name. |
-| **Default text style** | Poster | *Poster*, *Classic*, *Netflix*, or *Label*. See below. |
-| **Text style** (per library) | Default | Overrides the default text style for one library. "Set all…" above the column changes every library at once. |
-| **Same font size for all libraries** | Off | Long names wrap onto more lines instead of shrinking, so every tile uses the same font size. |
-| **Text size** | 100 % | Scales the text of every style, from 50 % to 150 %. |
-| **Text colour** | Default | White, or dark grey for the Label style. |
-| **Box colour** | Light grey, 80 % | Colour and opacity of the box behind the Label style. Accepts hex, `#rrggbbaa` or `rgba(…)`. |
-
-<hr style="background-color:#b4c5fb; height:2px; border:none;">
-
-## Styles
-
-<table>
-  <tr>
-    <td align="center" width="50%">
-      <img src="docs/style-poster.jpg" alt="Poster style" width="100%"><br>
-      <b>Poster</b>: condensed, upper case (default)
-    </td>
-    <td align="center" width="50%">
-      <img src="docs/style-classic.jpg" alt="Classic style" width="100%"><br>
-      <b>Classic</b>: bold and centered
-    </td>
-  </tr>
-  <tr>
-    <td align="center" width="50%">
-      <img src="docs/style-netflix.jpg" alt="Netflix style" width="100%"><br>
-      <b>Netflix</b>: bottom left with a gradient
-    </td>
-    <td align="center" width="50%">
-      <img src="docs/style-label.jpg" alt="Label style" width="100%"><br>
-      <b>Label</b>: dark text on a light box
-    </td>
-  </tr>
-  <tr>
-    <td align="center" width="50%">
-      <img src="docs/layout-grid.jpg" alt="Grid layout" width="100%"><br>
-      <b>Straight grid</b> layout
-    </td>
-    <td></td>
-  </tr>
-</table>
-
-<sub>The sample images use placeholder posters. On your server the collage uses your real posters.</sub>
-
-<hr style="background-color:#b4c5fb; height:2px; border:none;">
-
-## How It Works
-
-- **Poster sources:** Movie libraries use movie posters, TV libraries use series posters, collection libraries use collection posters, and mixed libraries use both movies and series.
-- **Output:** A 1920×1080 JPEG, saved as `poster.jpg` in the library's folder under Jellyfin's `root/default`, and set as the library's primary image. Jellyfin's built-in library image generator replaces images in its metadata folder on every library scan, but it leaves this file alone.
-- **Text fitting:** Long library names shrink to fit or wrap onto two lines.
-- **Small libraries:** Posters repeat to fill the collage, and the same poster is never placed right next to itself.
-- **Your own images are safe:** The plugin remembers which images it created, by path and hash. If a library has an image from anywhere else, the plugin leaves it alone unless you tick **Overwrite anyway**.
-- **Scheduled task:** The task *Generate library collages* runs every Sunday at 04:00. Change or add triggers under **Dashboard → Scheduled Tasks**. With random selection, each run produces a fresh mix.
-
-<hr style="background-color:#b4c5fb; height:2px; border:none;">
-
-## Uninstallation
-
-1. Go to **Dashboard → Plugins**, open **Library Collage**, and click **Uninstall**.
-2. Restart Jellyfin.
-3. Generated images stay on your libraries. To remove them, open a library's **Edit images** dialog in the web UI and delete or replace the image.
-
-<hr style="background-color:#b4c5fb; height:2px; border:none;">
-
-## FAQ
-
-> ### The library name appears twice.
-
-Your theme or custom CSS probably draws the library name on the tile as well. Either turn off **Write library name** in the plugin settings, or remove the overlay from your CSS.
-
-> ### A library is not updated.
-
-Check its status on the settings page:
-
-- **🔒 Own image:** The library already has an image the plugin did not create. Tick **Overwrite anyway**.
-- **Too few titles:** The library has fewer titles with a poster than the configured minimum.
-
-The Jellyfin log shows a line starting with `Library Collage:` for each library that was skipped and why.
-
-> ### The image does not change in my app.
-
-Clients cache images. Reload the web UI, or restart the app.
-
-> ### Can I change the schedule?
-
-Yes. Go to **Dashboard → Scheduled Tasks → Library Collage → Generate library collages**.
-
-<hr style="background-color:#b4c5fb; height:2px; border:none;">
-
-## Development
-
-```
+```sh
 dotnet build -c Release
 dotnet test
 ```
 
-The tests render sample images into `samples/`.
+DLL появится в `Jellyfin.Plugin.LibraryCollage/bin/Release/net10.0/`. Для ручной установки используйте DLL вместе с [docs/meta.json](docs/meta.json). При распространении сборки приложите GPL-3.0, лицензии шрифтов и предоставьте соответствующие исходники. Примеры, созданные тестами, сохраняются в `samples/`.
 
-**Releasing:** New features are built on the `dev` branch. Pushing a tag runs the *Release* workflow. It tests and builds the plugin, publishes a GitHub release with the zip, and updates the manifests. An annotated tag's message becomes the changelog.
+Локальная сборка и 51 тест прошли под Windows. Тесты проверяют глифы и рендеринг 1920×1080 во всех четырёх стилях. Linux x64 и ARM64 включены в матрицу CI. Проверка загрузки плагина на Jellyfin Docker с темой Flow на Raspberry Pi ещё предстоит.
 
-- A tag with three numbers, such as `v1.0.11`, makes a **stable release**. It goes into `manifest.json`.
-- A tag with a fourth number, such as `v1.0.10.1`, makes a **beta**. It is published as a pre-release and goes into `manifest-beta.json` only.
+## Лицензия и авторство
 
-**Beta testing:** To try new features early, use this repository URL instead of the regular one:
-
-```
-https://raw.githubusercontent.com/digital-workshop/jellyfin-plugin-library-collage/main/manifest-beta.json
-```
-
-It contains the betas and every stable release. Betas may contain bugs.
-
-<hr style="background-color:#b4c5fb; height:2px; border:none;">
-
-## Changelog
-
-- **1.0.11** (2026-10-19): New option to keep the same font size for all libraries; long names wrap instead of shrinking ([#1](https://github.com/digital-workshop/jellyfin-plugin-library-collage/issues/1)). New text size slider, custom text colour, and custom box colour with opacity for the Label style. Redesigned settings page. The installed version is shown at the bottom of the settings page.
-- **1.0.10** (2026-10-19): A *Set all…* dropdown above the *Text style* column changes the style of every library at once. The per-library *Default* option now shows which style it uses, e.g. "Default (Classic)" ([#2](https://github.com/digital-workshop/jellyfin-plugin-library-collage/issues/2)).
-- **1.0.9** (2026-10-18): *Dashboard → Libraries* shows a new collage without restarting Jellyfin.
-- **1.0.8** (2026-10-18): You can choose the text style per library.
-- **1.0.7** (2026-10-18): New text style *Label*: dark text on a translucent light box.
-- **1.0.6** (2026-10-18): Fix: Jellyfin's built-in library image generator no longer replaces the collages during library scans. Collages are now saved as `poster.jpg` in the library folder.
-- **1.0.5** (2026-10-18): *Generate* button per library, which creates that library's collage right away.
-- **1.0.4** (2026-10-18): The settings page is in the dashboard sidebar.
-- **1.0.3** (2026-10-18): Readable *Preview* buttons on the settings page.
-- **1.0.2** (2026-10-18): The settings page and the scheduled task are in English.
-- **1.0.1** (2026-10-18): First release.
-
-<hr style="background-color:#b4c5fb; height:2px; border:none;">
-
-## AI Disclaimer
-
-I want to be upfront about how this plugin was made, because I know the use of AI in software is a hot topic and everyone has their own feelings about it.
-
-Library Collage was built almost entirely with AI. The code, the tests, the build and release workflows and most of this README were written by [Claude Code](https://claude.com/claude-code) (Anthropic). My role was closer to a project manager than a developer:
-
-- **Design:** Before any code was written, I worked through every decision in detail. That covered which libraries get a collage, the layouts and text styles, how posters are picked, how hand-made images stay protected, and what the settings page offers.
-- **Testing:** I tested every release on my own Jellyfin 12.2 server, reported what didn't work, and kept going until I was happy with the result. Some of the trickier problems only showed up this way. For example, Jellyfin's built-in image generator was silently replacing the collages during library scans.
-- **Quality checks:** The rendering code is covered by automated tests that run on every build.
-
-I think a project like this suits the approach well. It's small, self-contained and easy to verify, because you can see right away whether a collage looks right. I also know the limits of building software this way, so if you run into a bug, please open an issue. I'd rather hear about it than have it go unnoticed.
-
-**The plugin itself does not use AI.** Collages are rendered locally on your server with SkiaSharp, the same graphics library Jellyfin uses. Nothing is sent to an external service, and no artwork is generated: the images are made only from your own posters.
-
-My personal view is that AI should be used responsibly as a tool, like any other tool. It shouldn't replace the artists whose posters make these collages look good in the first place.
-
-<hr style="background-color:#b4c5fb; height:2px; border:none;">
-
-## License & Acknowledgments
-
-Licensed under **GPL-3.0**, like Jellyfin itself.
-
-- [Jellyfin](https://jellyfin.org): the plugin API and SkiaSharp image rendering
-- [Bebas Neue](https://github.com/dharmatype/Bebas-Neue) and [Montserrat](https://github.com/JulietaUla/Montserrat): bundled fonts, SIL Open Font License
+Плагин распространяется по [GPL-3.0](LICENSE). Исходный проект разработан [digital-workshop](https://github.com/digital-workshop/jellyfin-plugin-library-collage). Шрифты распространяются по собственным лицензиям SIL OFL 1.1.

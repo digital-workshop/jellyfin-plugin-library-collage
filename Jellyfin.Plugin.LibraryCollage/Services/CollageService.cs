@@ -107,7 +107,7 @@ public class CollageService
     /// </summary>
     /// <param name="libraryId">The library id.</param>
     /// <returns>The JPEG, or <c>null</c> if the library is unknown or has too few posters.</returns>
-    public byte[]? RenderPreview(Guid libraryId)
+    public byte[]? RenderPreview(Guid libraryId, PluginConfiguration? preview = null)
     {
         var folder = GetCollectionFolders().FirstOrDefault(f => f.Id == libraryId);
         if (folder is null)
@@ -115,10 +115,11 @@ public class CollageService
             return null;
         }
 
-        var config = Config;
-        var options = ToOptions(config, GetSetting(config, folder));
+        var config = preview ?? Config;
+        var setting = GetSetting(config, folder);
+        var options = ToOptions(config, setting);
         var posters = SelectPosters(folder, config, CollageRenderer.GetCellCount(options));
-        return posters.Count == 0 ? null : CollageRenderer.Render(posters, folder.Name, options);
+        return posters.Count == 0 ? null : CollageRenderer.Render(posters, DisplayTitle(folder, setting), options);
     }
 
     /// <summary>
@@ -157,7 +158,7 @@ public class CollageService
             return GenerateResult.TooFewItems;
         }
 
-        var jpeg = CollageRenderer.Render(posters, folder.Name, options);
+        var jpeg = CollageRenderer.Render(posters, DisplayTitle(folder, setting), options);
 
         var previous = folder.GetImageInfo(ImageType.Primary, 0);
         var target = Path.Combine(folder.Path, ImageFileName);
@@ -289,14 +290,26 @@ public class CollageService
     {
         Layout = config.Layout,
         DimPercent = config.DimPercent,
-        DrawText = config.DrawText,
+        DrawText = setting.DrawText ?? config.DrawText,
+        Font = setting.Font ?? config.Font,
+        Alignment = config.Alignment,
+        Position = setting.Position ?? config.Position,
+        LetterCase = config.LetterCase,
+        AutoShrink = config.AutoShrink,
+        Outline = config.Outline,
+        OutlineWidth = config.OutlineWidth,
+        ShadowColor = ParseColor(config.ShadowColor),
+        ShadowOpacity = config.ShadowOpacity,
         TextStyle = setting.TextStyle ?? config.TextStyle,
         WrapLongTitles = config.WrapLongTitles,
-        TextScale = config.TextSizePercent / 100f,
+        TextScale = (setting.TextSizePercent ?? config.TextSizePercent) / 100f,
         TextColor = ParseColor(config.TextColor),
         LabelBoxColor = ParseColor(config.LabelBoxColor),
         LabelBoxOpacity = config.LabelBoxOpacity
     };
+
+    private static string DisplayTitle(CollectionFolder folder, LibrarySetting setting) =>
+        string.IsNullOrWhiteSpace(setting.DisplayTitle) ? folder.Name : setting.DisplayTitle;
 
     private static SKColor? ParseColor(string? hex)
         => !string.IsNullOrWhiteSpace(hex) && SKColor.TryParse(hex, out var color) ? color : null;

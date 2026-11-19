@@ -46,4 +46,14 @@ public sealed class CollageOptions
 
     /// <summary>Gets the JPEG quality, 1–100.</summary>
     public int JpegQuality { get; init; } = 90;
+
+    public TitleFont Font { get; init; }
+    public TitleAlignment Alignment { get; init; }
+    public TitlePosition Position { get; init; }
+    public TitleCase LetterCase { get; init; }
+    public bool AutoShrink { get; init; } = true;
+    public bool Outline { get; init; }
+    public float OutlineWidth { get; init; } = 3;
+    public SKColor? ShadowColor { get; init; }
+    public int? ShadowOpacity { get; init; }
 }

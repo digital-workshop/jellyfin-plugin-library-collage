@@ -47,3 +47,11 @@ public enum SelectionMode
     /// <summary>Random items from the top rated share of the library.</summary>
     RandomTopRated = 3
 }
+
+public enum TitleFont { NotoSans, IBMPlexSans, Montserrat, RobotoCondensed, BebasNeue }
+
+public enum TitleAlignment { StyleDefault, Left, Center, Right }
+
+public enum TitlePosition { StyleDefault, Top, Center, Bottom }
+
+public enum TitleCase { StyleDefault, Original, Uppercase }

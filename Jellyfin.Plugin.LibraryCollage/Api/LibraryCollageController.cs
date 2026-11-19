@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Jellyfin.Plugin.LibraryCollage.Configuration;
 using Jellyfin.Plugin.LibraryCollage.Services;
 using Jellyfin.Plugin.LibraryCollage.Tasks;
 using MediaBrowser.Common.Api;
@@ -53,6 +54,13 @@ public class LibraryCollageController : ControllerBase
     public IActionResult GetPreview([FromRoute] Guid libraryId)
     {
         var jpeg = _collageService.RenderPreview(libraryId);
+        return jpeg is null ? NotFound() : File(jpeg, "image/jpeg");
+    }
+
+    [HttpPost("Preview/{libraryId}")]
+    public IActionResult Preview([FromRoute] Guid libraryId, [FromBody] PluginConfiguration configuration)
+    {
+        var jpeg = _collageService.RenderPreview(libraryId, configuration);
         return jpeg is null ? NotFound() : File(jpeg, "image/jpeg");
     }
 

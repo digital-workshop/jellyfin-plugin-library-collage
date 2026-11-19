@@ -1,0 +1,15 @@
+{
+  "category": "General",
+  "changelog": "Embedded Cyrillic fonts, glyph fallback, title styling and unsaved preview.",
+  "description": "Generates poster collages with configurable Unicode library titles.",
+  "guid": "0f93e2db-b456-4e09-a09a-76154a40aed6",
+  "name": "Library Collage",
+  "overview": "Library Collage RU test build",
+  "owner": "LaneTraitor",
+  "targetAbi": "12.4.0.0",
+  "timestamp": "2026-11-19T00:00:00Z",
+  "version": "1.0.11.100",
+  "status": "Active",
+  "autoUpdate": false,
+  "assemblies": ["Jellyfin.Plugin.LibraryCollage.dll"]
+}

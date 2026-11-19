@@ -47,6 +47,16 @@ public class PluginConfiguration : BasePluginConfiguration
 
     /// <summary>Gets or sets the minimum number of items with a poster; smaller libraries are skipped.</summary>
     public int MinimumItems { get; set; } = 4;
+
+    public TitleFont Font { get; set; }
+    public TitleAlignment Alignment { get; set; }
+    public TitlePosition Position { get; set; }
+    public TitleCase LetterCase { get; set; }
+    public bool AutoShrink { get; set; } = true;
+    public bool Outline { get; set; }
+    public float OutlineWidth { get; set; } = 3;
+    public string ShadowColor { get; set; } = "#000000";
+    public int? ShadowOpacity { get; set; }
 }
 
 /// <summary>
@@ -65,4 +75,10 @@ public class LibrarySetting
 
     /// <summary>Gets or sets the text style for this library; <c>null</c> uses the global style.</summary>
     public TextStyle? TextStyle { get; set; }
+
+    public TitleFont? Font { get; set; }
+    public TitlePosition? Position { get; set; }
+    public int? TextSizePercent { get; set; }
+    public bool? DrawText { get; set; }
+    public string? DisplayTitle { get; set; }
 }

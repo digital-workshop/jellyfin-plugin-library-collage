@@ -119,6 +119,112 @@ public sealed class CollageRendererTests : IDisposable
         Assert.NotEmpty(jpeg);
     }
 
+    public static IEnumerable<object[]> CyrillicStyles() =>
+        from font in Enum.GetValues<TitleFont>()
+        from style in Enum.GetValues<TextStyle>()
+        select new object[] { font, style };
+
+    [Theory]
+    [InlineData(TitleFont.NotoSans)]
+    [InlineData(TitleFont.IBMPlexSans)]
+    [InlineData(TitleFont.Montserrat)]
+    [InlineData(TitleFont.RobotoCondensed)]
+    [InlineData(TitleFont.BebasNeue)]
+    public void EmbeddedFonts_ResolveRussianLatinAndPunctuation(TitleFont selection)
+    {
+        const string title = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 /!?–—«»…"
+            + "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя";
+        using var fonts = new TitleFonts(selection, 100);
+        var runs = fonts.Runs(title);
+
+        Assert.Equal(title, string.Concat(runs.Select(run => run.Text)));
+        Assert.All(runs, run => Assert.All(run.Text, ch => Assert.NotEqual((ushort)0, run.Font.GetGlyph(ch))));
+        if (selection == TitleFont.BebasNeue)
+        {
+            var latin = Assert.Single(fonts.Runs("YouTube"));
+            var cyrillic = Assert.Single(fonts.Runs("Ёжик"));
+            Assert.NotSame(latin.Font, cyrillic.Font);
+            Assert.Equal((ushort)0, latin.Font.GetGlyph('Ё'));
+        }
+        else
+        {
+            Assert.Single(runs);
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(CyrillicStyles))]
+    public void Render_RussianTitlesFitCanvas(TitleFont font, TextStyle style)
+    {
+        string[] titles = [
+            "Фильмы", "Мультфильмы", "Мультсериалы", "Холодное лето пятьдесят третьего",
+            "Ёжик в тумане", "YouTube / Boosty", "Anime 2026", "Сериалы и документальные фильмы",
+            "YouTube / Видео", "Boosty 2026", "Ёжик\nв тумане"
+        ];
+
+        for (var i = 0; i < titles.Length; i++)
+        {
+            var options = new CollageOptions
+            {
+                Font = font,
+                TextStyle = style,
+                LetterCase = i % 2 == 0 ? TitleCase.Original : TitleCase.Uppercase,
+                WrapLongTitles = i % 3 == 0,
+                AutoShrink = i % 3 != 1,
+                Alignment = (TitleAlignment)(i % 3 + 1),
+                Position = (TitlePosition)(i % 3 + 1),
+                TextScale = 1.5f,
+                TextColor = SKColors.Lime,
+                ShadowColor = SKColors.Blue,
+                ShadowOpacity = 85,
+                Outline = true,
+                OutlineWidth = 8
+            };
+            var jpeg = CollageRenderer.Render([], titles[i], options);
+            using var decoded = SKBitmap.Decode(jpeg);
+            Assert.Equal(1920, decoded.Width);
+            Assert.Equal(1080, decoded.Height);
+
+            var pixels = decoded.Pixels;
+            var green = 0;
+            var blue = 0;
+            for (var index = 0; index < pixels.Length; index++)
+            {
+                var color = pixels[index];
+                if (color.Blue > color.Green + 50 && color.Blue > color.Red + 50)
+                {
+                    blue++;
+                }
+
+                if (color.Green <= 130 || color.Red >= 100 || color.Blue >= 100)
+                {
+                    continue;
+                }
+
+                green++;
+                var x = index % decoded.Width;
+                var y = index / decoded.Width;
+                if (x < 12 || x >= decoded.Width - 12 || y < 12 || y >= decoded.Height - 12)
+                {
+                    Assert.Fail($"Title '{titles[i]}' in {font}/{style} touched the canvas margin at ({x}, {y}).");
+                }
+            }
+
+            Assert.True(green > 100, titles[i]);
+            Assert.True(blue > 100, titles[i]);
+        }
+    }
+
+    [Theory]
+    [InlineData(TextStyle.Poster, "Ёжик в тумане")]
+    [InlineData(TextStyle.Label, "Фильмы")]
+    public void Render_ComparisonSamples(TextStyle style, string title)
+    {
+        var options = new CollageOptions { TextStyle = style };
+        var jpeg = CollageRenderer.Render(CreatePosters(CollageRenderer.GetCellCount(options)), title, options);
+        File.WriteAllBytes(Path.Combine(SamplesDir, $"After-{style}.jpg"), jpeg);
+    }
+
     /// <summary>
     /// Creates simple stand-in posters: a hue gradient with a big number.
     /// </summary>
